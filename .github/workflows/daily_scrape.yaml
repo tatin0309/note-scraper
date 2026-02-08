@@ -36,3 +36,10 @@ jobs:
           git add index.html
           git commit -m "Update Daily News" || exit 0
           git push
+      # 一番最後（git pushの後）にこれを付け加えます
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          publish_branch: gh-pages
