@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily News Patrol</title>
+    <title>RSS News Patrol</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -15,7 +15,6 @@
             --text-muted: #64748b;
             --card-bg: #ffffff;
             --border: #e2e8f0;
-            --accent: #f59e0b;
         }
         @media (prefers-color-scheme: dark) {
             :root {
@@ -38,29 +37,20 @@
         header {
             text-align: center;
             margin-bottom: 40px;
-            padding: 60px 20px;
+            padding: 50px 20px;
             background: linear-gradient(135deg, #1e3a8a, #3b82f6);
             color: white;
             border-radius: 32px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
         }
-        header::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-            pointer-events: none;
-        }
-        header h1 { font-size: 3.5rem; margin-bottom: 15px; font-weight: 700; letter-spacing: -0.05em; }
-        header p { font-size: 1.2rem; opacity: 0.9; font-weight: 500; }
+        header h1 { font-size: 3rem; margin-bottom: 10px; font-weight: 700; letter-spacing: -0.05em; }
+        header p { font-size: 1.1rem; opacity: 0.9; }
 
         .tabs {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 40px;
+            gap: 12px;
+            margin-bottom: 30px;
             overflow-x: auto;
             padding: 10px;
             scrollbar-width: none;
@@ -68,104 +58,93 @@
         .tabs::-webkit-scrollbar { display: none; }
         
         .tab-btn {
-            padding: 14px 32px;
-            border: none;
+            padding: 12px 28px;
+            border: 1px solid var(--border);
             background: var(--card-bg);
             color: var(--text-main);
-            border-radius: 20px;
+            border-radius: 99px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
             white-space: nowrap;
-            border: 1px solid var(--border);
         }
         .tab-btn.active {
             background: var(--primary);
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
             border-color: var(--primary);
-        }
-        .tab-btn:hover:not(.active) {
-            border-color: var(--primary);
-            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
-        .tab-content { display: none; animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
-        .tab-content.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; }
+        .tab-content { display: none; animation: fadeIn 0.5s ease; }
+        .tab-content.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; }
 
         .card {
             background: var(--card-bg);
-            border-radius: 24px;
-            padding: 30px;
+            border-radius: 20px;
+            padding: 25px;
             display: flex;
             flex-direction: column;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.3s, box-shadow 0.3s;
             text-decoration: none;
             color: inherit;
             border: 1px solid var(--border);
-            position: relative;
         }
         .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 25px 30px -10px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             border-color: var(--primary);
         }
         .card h3 {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            margin-bottom: 20px;
-            line-height: 1.5;
+            margin-bottom: 12px;
+            line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
+        }
+        .description {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex-grow: 1;
         }
         .card-footer {
             margin-top: auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
-            padding-top: 20px;
+            padding-top: 15px;
             border-top: 1px solid var(--border);
         }
-        .site-badge {
+        .badge {
             background: #eff6ff;
             color: #2563eb;
-            padding: 6px 14px;
-            border-radius: 10px;
-            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
             font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
         @media (prefers-color-scheme: dark) {
-            .site-badge { background: #1e293b; color: #60a5fa; }
+            .badge { background: #1e293b; color: #60a5fa; }
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 100px;
-            padding: 60px;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border);
-            font-weight: 500;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        footer { text-align: center; margin-top: 80px; padding: 40px; color: var(--text-muted); border-top: 1px solid var(--border); }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>News Patrol</h1>
-            <p>2026年02月08日 | 厳選された最新トピック</p>
+            <p>2026年02月08日 | 厳選された最新トピック (RSSフィード)</p>
         </header>
 
         <div class="tabs">
@@ -174,12 +153,252 @@
             <button class="tab-btn" onclick="openTab(event, 'curiosity')">好奇心</button>
         </div>
 
-        <div id="morning" class="tab-content active"><div style="grid-column: 1/-1; text-align: center; padding: 80px; color: var(--text-muted); font-size: 1.1rem;">新しいニュースは見つかりませんでした。</div></div>
-        <div id="creative" class="tab-content"><div style="grid-column: 1/-1; text-align: center; padding: 80px; color: var(--text-muted); font-size: 1.1rem;">新しいニュースは見つかりませんでした。</div></div>
-        <div id="curiosity" class="tab-content"><div style="grid-column: 1/-1; text-align: center; padding: 80px; color: var(--text-muted); font-size: 1.1rem;">新しいニュースは見つかりませんでした。</div></div>
+        <div id="morning" class="tab-content active">
+                <a href="https://news.google.com/rss/articles/CBMisAFBVV95cUxOdXVHeVQ5U0hvVURMbEtfNXJWeFY4bllXN0U2REpQMlhBSEtxV3dXbmY3cHdETHBjUDZBZ1ZPNFpQRUtFQi1XRkNrZWdUeFRuenh5NWJfMzdBM29KeWEyYVUwazdLQW4wMWNobDVDSFFjc1JGaVh0WVZpdERrX2pfcE4xREZHVlpEMUh4bW8tQ1NiT2pTUmpnZzhkSWxaSkQzUl8xcHFpMW5VcGlHbkdDVA?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>Shanghai Runda Medical Technology says 2015 dividend payment date - Reuters</h3>
+                    <p class="description">Shanghai Runda Medical Technology says 2015 dividend payment date  Reuters</p>
+                    <div class="card-footer">
+                        <span class="badge">ロイター通信 (テック)</span>
+                        <span>Feb 07</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMicEFVX3lxTE12SGhndGREckNiemNSbXc0U0VlS2E3MWpqYjg1WDYxQklocUdHSDFBQVoxaHhlN3RYRUN1NGFhT0h3RkxVVGpBb1R2VVhpTEZUMVZGbk93anFKRnlNbXhMQXVkMC1INlF3Wkk0Y3FHYXQ?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>Qingdao Gaoce Technology Co Ltd - Reuters</h3>
+                    <p class="description">Qingdao Gaoce Technology Co Ltd  Reuters</p>
+                    <div class="card-footer">
+                        <span class="badge">ロイター通信 (テック)</span>
+                        <span>Feb 05</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiyAFBVV95cUxNa2I0Y1ZDZ0xLeDJKTU1qZmpxd2VYTzV4MmhWUUttTmVScW1OSkVxa0tHMEFmRUVNQ19CbVJ1M3dqUFlCdk1yUzYwREZ5OFQ3cTZlSUxFWnVnZC01ZllBelhEaWNYbklkd19CRU9BS3BCcWJOQTFXcW5QRElwQUVTc0V6SUNXQTEzajcwMnFjek91MklZZVBtbFFQdW5Gd3htazlQOWY3cVFRNmZ4cWQyZjJsV1VVRF9FS3h5NUpyVDFmX2VWMkQwaw?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>Irish drug trial technology firm Teckro wins $25 million injection - Reuters</h3>
+                    <p class="description">Irish drug trial technology firm Teckro wins $25 million injection  Reuters</p>
+                    <div class="card-footer">
+                        <span class="badge">ロイター通信 (テック)</span>
+                        <span>Feb 14</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMi2gFBVV95cUxOZUEtMk85SGtMb2E3Tm95QkM3c2dXSno5R3BfZWZqdnJ4Nk5wdkRDOHdzblNfRnpid1FiRWRtQ1JjLW5rdjZaNFFjMjFYaWZqaDZhN28yU0VXR1JpQmhmTlVqMEhkMTR5X3BKdVhJeXdoYVZuV0s1RU41c25EUzJ6SWhOTXBMWTJIMzZuREdFR19xcy1jZlZwTkdIa2pnc09IOUxYOURZMGg0S2pJQlpia1lrcFgybHl4OXVHR3dYUzYwUXkxZWVmdkVFa3lPdXluS1lwZWdXUUdnUQ?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>U.S. Senators want Commerce Dept to list tech to keep away from China - Reuters</h3>
+                    <p class="description">U.S. Senators want Commerce Dept to list tech to keep away from China  Reuters</p>
+                    <div class="card-footer">
+                        <span class="badge">ロイター通信 (テック)</span>
+                        <span>Jun 15</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMi0gFBVV95cUxQZUxoZm1NNnhNeXdUcDRzblR4SS1uM09QR3IzcUVfZGZJLUFsY1lYVkpPRkpYcTcxbjltYUdvUDUwc3NtR19JbkFqT002TjZLRTB5bzNJLVB4dkpsOHJSSm1QTElaa3Q5NklHcGF5eEJPc2QyNEdTNGRzSE0yQU1MdDdXcjdvVV85TEViQjBZX3VMQXNyRjBzVDNrN0djZHVUOVlKXzYycmJBUzNnZUFmTk5HZnpYUEZvd2o0VHBmVHhYUGVkNDZwanFkTjdtdFQ5M2c?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>India&#x27;s Wipro sees modest growth in current-quarter IT services revenue - Reuters</h3>
+                    <p class="description">India&#x27;s Wipro sees modest growth in current-quarter IT services revenue  Reuters</p>
+                    <div class="card-footer">
+                        <span class="badge">ロイター通信 (テック)</span>
+                        <span>Oct 12</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMipwFBVV95cUxOT0RPZm15WFNiSnZzcDNuU3pmZkVfaVh3aVNZc3pBbnFMZ2dKVHhtSF9yVGdMdTJkb2Qyb2IyUV9sMXM0Q0l4cmFPQmUtWEFaWjZhLXlNU0xfRjFVTk1ZOGlQbHB1Z3lVM25XRkpRS29YNHV3S2Zjd1lheHg0QVoxa1I4c2h0UnZDUmdnOFMzVWQ4X3RibjZrZG5MeHVhZDMyOS1fRWMwQQ?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>Allen and Company Sun Valley Media and Technology Conference in Sun Valley, Idaho - Reuters</h3>
+                    <p class="description">Allen and Company Sun Valley Media and Technology Conference in Sun Valley, Idaho  Reuters</p>
+                    <div class="card-footer">
+                        <span class="badge">ロイター通信 (テック)</span>
+                        <span>Jul 10</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMi1gFBVV95cUxOYmdTOHZONGNnNUp1cjl0RVV6ZTI2NG9pdWh2aWhDTF9oaWxtOFdMR3d1RXdRN0dfOVFSWXFtM0FPWVFRaUM1bERNNHl3ejk5ZTY4LWMwcXhZaU90UGZqaVBwd1d6bTE4czNVNG5tQXdHV0JmM0pNRnR5VTBCMU1rLUtJRXI3eW5UZkEzME5iYk01RHZVN2RmdTM3cUJBQnRJeEhHZmcwaUNVUFYyNkdMMS1wQXhaNDZCeUdLZ0VqNGZKa3h2Qnd3MzY2RjFhOTB4cDFucjVB?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>German firm behind goal-line technology looks beyond World Cup - Reuters</h3>
+                    <p class="description">German firm behind goal-line technology looks beyond World Cup  Reuters</p>
+                    <div class="card-footer">
+                        <span class="badge">ロイター通信 (テック)</span>
+                        <span>May 28</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiiAFBVV95cUxQSThtX1dUSEdMczAtRlQ1VXhCSVVTTzBSQVctYWpnRlVUYjFJSnhvSU5UY29NSGE4bmg4SGRCcTJ6b1d2V2JndlNtSWpTUThLUjhEcUpOaWhlMGRVQkVYNHBSaVBSS0t6UVQxeGZCb011alhUZUxPUkNGOFoxOWlTVFNGU0lpQXlM?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>オープンソースの「Notepad++」、中国関連ハッカーの標的に - Reuters</h3>
+                    <p class="description">オープンソースの「Notepad++」、中国関連ハッカーの標的に  Reuters</p>
+                    <div class="card-footer">
+                        <span class="badge">ロイター通信 (テック)</span>
+                        <span>Feb 03</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiZkFVX3lxTE5GaVlxRlI1OF9xbUY5RDAyak9IRFpFTjNIQ0p0S3c3VHR2cXM4NTd3Nmh6WXl5bTc1OENLNnl4M3JnTk5QWFVJV2U3RkVTZk1RMVBXSzJGYkpET3Z6YVRVRGNhY3RJQQ?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>1157.H - | Stock Price &amp; Latest News | Reuters - Reuters</h3>
+                    <p class="description">1157.H - | Stock Price &amp; Latest News | Reuters  Reuters</p>
+                    <div class="card-footer">
+                        <span class="badge">ロイター通信 (テック)</span>
+                        <span>Feb 03</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiZkFVX3lxTE1OVVl3ckQ4RUVqd2w3RWVJbGZ2YWRUYl9xWFc0cjVZbXZPWHFhT1pHRmJXS0lxd25sOE5UeVMwbENjN0NBcGlvUkRBN2htRUZILUVlZ0lndW9uWVdfMHUzNG5wcWpaUQ?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>78NA.H - | Stock Price &amp; Latest News | Reuters - Reuters</h3>
+                    <p class="description">78NA.H - | Stock Price &amp; Latest News | Reuters  Reuters</p>
+                    <div class="card-footer">
+                        <span class="badge">ロイター通信 (テック)</span>
+                        <span>Feb 03</span>
+                    </div>
+                </a></div>
+        <div id="creative" class="tab-content">
+                <a href="https://news.google.com/rss/articles/CBMifkFVX3lxTFBYU2FoczJ2VXg3cGU0ZGNkZ0swRGpHZVc2UHN6U2dteDZIc01WUHRrMmpvOFBhRDJ3Q0otOTdCTjIweFJabkE5OGp6bHBwTXdPVGV5TzVuNGVNeURqNnkwUVd5Si1WOVBENjlMbndzeWRSX2pDMjctTUdXM1RSQQ?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>体内で溶ける電子カプセルが、服薬管理の未来を変える - WIRED.jp</h3>
+                    <p class="description">体内で溶ける電子カプセルが、服薬管理の未来を変える  WIRED.jp</p>
+                    <div class="card-footer">
+                        <span class="badge">WIRED (サイエンス)</span>
+                        <span>Feb 05</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMivgFBVV95cUxQVkg0WUduSUdvLWkwYk1WTDJheGJuOU1NWGN2a1lWbEFxZHFqaEZ3VmwyenI3LWp4SXphS3huTmJJaktmRy1HeDBOYWpXV0I2RWlsa092aEF5OVFJOUl6T25rUlBOc0o4UTV0RUpCUHZ5d2dzMHUyQ1NCNE5Bc0pTZHZrbkNEVzFzN0FvY2V6cHZKdDZEMVdUbXZKXzBCOHkyQnhlVS1BdDFUSGVWYXM4RlFtUUwzYkd5bTNIdTBR?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>非侵襲型BCIに中国発スタートアップ参入。超音波技術を活用 - WIRED.jp</h3>
+                    <p class="description">非侵襲型BCIに中国発スタートアップ参入。超音波技術を活用  WIRED.jp</p>
+                    <div class="card-footer">
+                        <span class="badge">WIRED (サイエンス)</span>
+                        <span>Feb 02</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiZkFVX3lxTE9uQ0k3VDNwdndmMjRzOEdNMXVxR2xOeWtxTWt1WW5QS2tWekJaSXI5ODJybE1RYndQeWNyREx3UWY4WGdkVjZfM1JCTlpKVXBicE55VzhRYVhrQ1NBQjZ1RUk4OHdXZw?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>地下の“大穴”で探求──宇宙になぜ、何かがあるのか？: 「ハイパーカミオカンデ」プロジェクトの射程 - WIRED.jp</h3>
+                    <p class="description">地下の“大穴”で探求──宇宙になぜ、何かがあるのか？: 「ハイパーカミオカンデ」プロジェクトの射程  WIRED.jp</p>
+                    <div class="card-footer">
+                        <span class="badge">WIRED (サイエンス)</span>
+                        <span>Feb 04</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMilwFBVV95cUxOc0I1MW1BMTh2N1hvTU1rTkJmenJuV2drYTBNREIwOUh3dmdMOHp5aU5xdXcwLTZDRUtxSzZXZTFrNklwZXJVRGdaTDZxb0VyMUFXUXcyb3R3YWZGMEFndmUxMGI0V1dMMmNNczlNd2ZiRXBSbEFkR3dQQnJlak9VRERmdFVYWjA0aHdSUGhybGUzSnlJZ3dR?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>大気中には想像以上に大量のプラスチック粒子が漂っている：研究結果 - WIRED.jp</h3>
+                    <p class="description">大気中には想像以上に大量のプラスチック粒子が漂っている：研究結果  WIRED.jp</p>
+                    <div class="card-footer">
+                        <span class="badge">WIRED (サイエンス)</span>
+                        <span>Feb 04</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxQVkdMdzhmWGNCQkNHTHMyOGR4LXVnTDFLakppcmZjNmxyWElpVUYwSmV0OXM2YWhSY2NqUk8tS1h5elBQcmszbWJBSC1jdUl3MWpVUC1QTlhRa2tVcGlFVEdwVjhPQXhFM2xCdE9RdmxsOFpHMlFQTnliSmc3M2N6Y0hXQ2Y?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>暗黒物質の分布を示す最高精度の地図が、銀河形成の歴史を写し出す - WIRED.jp</h3>
+                    <p class="description">暗黒物質の分布を示す最高精度の地図が、銀河形成の歴史を写し出す  WIRED.jp</p>
+                    <div class="card-footer">
+                        <span class="badge">WIRED (サイエンス)</span>
+                        <span>Feb 06</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTE9ib2hheHNaZ3FwODJVRS1ldnd6bkFIYW16RGh3eEhmTGtsQWpKRUZFZzlsSVRsdERieE9PbmRFX2JvLTZ5T09mUDVnT3JXLVRwMUFxZmhROE9RdERzS19qYmlzR0dkTHVHY1AtT2kyWUxndVk?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>「BPAフリー」は必ずしも安全ではない？ 代替物質が細胞に及ぼす影響が明らかに - WIRED.jp</h3>
+                    <p class="description">「BPAフリー」は必ずしも安全ではない？ 代替物質が細胞に及ぼす影響が明らかに  WIRED.jp</p>
+                    <div class="card-footer">
+                        <span class="badge">WIRED (サイエンス)</span>
+                        <span>Feb 06</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMia0FVX3lxTFAxOWFSdGJ4U1hGLWptQlRFZzJtdnVJZFY0T2FFMmJlV2tWY0dpX21qSE83bVQ1WEg4VWxITmx4T2xnSHIwX0dYWnNBM1BlNncwWFZiamRNeFJGaWxvS2xpRWg0NV9lY1gzWS1v?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>オメガが刻む、100万分の1秒の物語。オリンピック計時技術94年の歴史 - WIRED.jp</h3>
+                    <p class="description">オメガが刻む、100万分の1秒の物語。オリンピック計時技術94年の歴史  WIRED.jp</p>
+                    <div class="card-footer">
+                        <span class="badge">WIRED (サイエンス)</span>
+                        <span>Feb 05</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMib0FVX3lxTE1KOV9UZUkwX3lJNEYtSUtuM1k3RjVfX0w0ZFhWNDNkTTRYcTlXdFpiZlVNZ2pyR09qUGRoNXBtWmlqaEtkNzdhN3BhRjNES3hUbnltVFl0aVI2YlY2blpQM3N2M2ZGNUtRYUR6Y2FRRQ?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>フードテックの“美しい物語”を、バイオアートの先駆者が解体する - WIRED.jp</h3>
+                    <p class="description">フードテックの“美しい物語”を、バイオアートの先駆者が解体する  WIRED.jp</p>
+                    <div class="card-footer">
+                        <span class="badge">WIRED (サイエンス)</span>
+                        <span>Feb 05</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTE5yVlZXRVdlTGJ0Ynp3aWdVRWZRd3A5d3hRQzhtVnozYzN2T1lteFk0bXAzZXNocXVPWFNpbHM5S2FsbGxLU3pBRzN1ZWVfaE9nNXRxVmFhcEJoTDdYejdVQTI0QWJFOU5jTWc?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>ゴーストを探しに行こう！ 2029年が来る前に──『攻殻機動隊展 Ghost and the Shell』がスタート - WIRED.jp</h3>
+                    <p class="description">ゴーストを探しに行こう！ 2029年が来る前に──『攻殻機動隊展 Ghost and the Shell』がスタート  WIRED.jp</p>
+                    <div class="card-footer">
+                        <span class="badge">WIRED (サイエンス)</span>
+                        <span>Jan 30</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMie0FVX3lxTE1majd4R0ljM3ltQnRZSFJvUmxLVmZINlY2MlZBdkNCSk93SDV3ZXhpYWZucDNfakI0ZG9jeU5VWWtJTlhpVko4aEpmcENPeVBIYUNlZ2RXeFowRkw2ZjdJT1JEeUlWYThTdndLX3NkeW81RzVjZXZjMDFGUQ?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>AIだけのはずのSNS「Moltbook」に人間が潜り込んでみた - WIRED.jp</h3>
+                    <p class="description">AIだけのはずのSNS「Moltbook」に人間が潜り込んでみた  WIRED.jp</p>
+                    <div class="card-footer">
+                        <span class="badge">WIRED (サイエンス)</span>
+                        <span>Feb 07</span>
+                    </div>
+                </a></div>
+        <div id="curiosity" class="tab-content">
+                <a href="https://news.google.com/rss/articles/CBMiREFVX3lxTE9sWFlTbEJzd3BydWIzYzNoaEVnendyM0hNOW43ZGtleGo4Vnp4SW10YV8xXzd3UUh5MS1aZGtlTF9OTWk4?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>ナショナルジオグラフィック日本版サイト - ナショナルジオグラフィック日本版</h3>
+                    <p class="description">ナショナルジオグラフィック日本版サイト  ナショナルジオグラフィック日本版</p>
+                    <div class="card-footer">
+                        <span class="badge">ナショナル ジオグラフィック</span>
+                        <span>Jul 13</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE1SV0l1cFc4UmdPSzFPSGNLak13Nl83YkZ4LUwtSm1pcmpxTjc3Szc5TFFqTEtaRDBYVUlMdEZiS2hrNENWSGhQVndTN2V0aXZKUm5VRktEcGxmRXdmeV9BTldLdw?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>【動画】ペンギンを狩るピューマたち、パタゴニアでの驚きの変化 - ナショナルジオグラフィック日本版</h3>
+                    <p class="description">【動画】ペンギンを狩るピューマたち、パタゴニアでの驚きの変化  ナショナルジオグラフィック日本版</p>
+                    <div class="card-footer">
+                        <span class="badge">ナショナル ジオグラフィック</span>
+                        <span>Feb 04</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE1SNVRON1hSVS15MUFoRUt0RFVBa2tYWlk4UDQ2TGVoQWt5TG9IdjVGdjRteVJDelJXU2ZtOTQ4dXVvU2JEclpHREZfbjk1N3BCeGJYQ2FfUmRLVDVfcWN0VURDdw?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>サーベルタイガーのミイラを発見、ついに本当の姿が明らかに - ナショナルジオグラフィック日本版</h3>
+                    <p class="description">サーベルタイガーのミイラを発見、ついに本当の姿が明らかに  ナショナルジオグラフィック日本版</p>
+                    <div class="card-footer">
+                        <span class="badge">ナショナル ジオグラフィック</span>
+                        <span>Nov 21</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE5wcmpaUXJZS3pfdG5mNWx3WW13dElSaUl0Rk5CYWVvNzZmRUV5b3NfOVNLdjZZWXNXUFlKYVg3NkZHeEFoY3Y4cTlJdmpzLXJFOG9FV0ZWMlBXbXZJNFB3d3N6NA?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>人はいつからネコを飼うようになったのか、定説覆す驚きの発見 - ナショナルジオグラフィック日本版</h3>
+                    <p class="description">人はいつからネコを飼うようになったのか、定説覆す驚きの発見  ナショナルジオグラフィック日本版</p>
+                    <div class="card-footer">
+                        <span class="badge">ナショナル ジオグラフィック</span>
+                        <span>Dec 01</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE01d2xuZ3U0WUoxaW1fdDZ2U0dHaUJMQkk3STR2bWxRbGJ4ZmZaWUdQZV9uU2ZQVHprTVZpSzlSZUhVSVN0eWMzYVdEZzJtOXlfeGs3NUhVbmF3a1RLTkl4VEswWQ?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>うつやADHDも改善、メンタルヘルスにいい食べ物とは、研究続々 - ナショナルジオグラフィック日本版</h3>
+                    <p class="description">うつやADHDも改善、メンタルヘルスにいい食べ物とは、研究続々  ナショナルジオグラフィック日本版</p>
+                    <div class="card-footer">
+                        <span class="badge">ナショナル ジオグラフィック</span>
+                        <span>Mar 24</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTFB4ZFlRZGczWEtkSldZN1JIU0FSb2hYdWpCNXpBTHJlNEpqd3F1RkdIeWFuampaY3phZDdIa3VkT2NsaG1tLU43Q2pMV2xZZ01NVzYxQmxUZGFDd3E4WWtEU0xjVQ?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>コレステロールを下げるとっておきの食事法、上手な始め方は - ナショナルジオグラフィック日本版</h3>
+                    <p class="description">コレステロールを下げるとっておきの食事法、上手な始め方は  ナショナルジオグラフィック日本版</p>
+                    <div class="card-footer">
+                        <span class="badge">ナショナル ジオグラフィック</span>
+                        <span>Feb 02</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE92RlVTOUcyZjZvaVJva2Q0MnE3THBtMTRSRlBDSTdDakJQZVRzT1RqWmtBSEp4eHNzQUlXSzNVZ0xfUERteFBtSGZDRWdRdGJQMDhCUVBmS1FrUm9DRklTUTNXZw?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>増える大人のADHD、ネットのやりすぎによる「後天性」の恐れ - ナショナルジオグラフィック日本版</h3>
+                    <p class="description">増える大人のADHD、ネットのやりすぎによる「後天性」の恐れ  ナショナルジオグラフィック日本版</p>
+                    <div class="card-footer">
+                        <span class="badge">ナショナル ジオグラフィック</span>
+                        <span>Jan 18</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE03NHdzUWswX2NrRFg2UlNZSUgtOURVZ1E1T0RybzdCVlhtM2RKRmhnWkJMUDlVLV9iWmFZNFQ3UGtYQzZPQTdUemt4TjJUanB4Y2JERk94SG9BVmpOMjFtQzVXbw?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>地球史上最低の海水温はマイナス15℃と判明、どういうこと？ - ナショナルジオグラフィック日本版</h3>
+                    <p class="description">地球史上最低の海水温はマイナス15℃と判明、どういうこと？  ナショナルジオグラフィック日本版</p>
+                    <div class="card-footer">
+                        <span class="badge">ナショナル ジオグラフィック</span>
+                        <span>Feb 03</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE5kQVNlY0RTT3J1Z3E1cFFjeVlsTGRCRUdUMlQ2V0xwQjBDMVV3ZUEzSnRwT0hRS3ZkWTVocEFCU2hueUVnVmtGVTZqYVpEajhFWW80TW1UY2pQTEJBNS1aVnIzVQ?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>増える大人のADHD 子どもと何が違うのか、女性の特徴とは - ナショナルジオグラフィック日本版</h3>
+                    <p class="description">増える大人のADHD 子どもと何が違うのか、女性の特徴とは  ナショナルジオグラフィック日本版</p>
+                    <div class="card-footer">
+                        <span class="badge">ナショナル ジオグラフィック</span>
+                        <span>Jan 30</span>
+                    </div>
+                </a>
+                <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTFB1cE9JOS1FWTlSa203a2wyV0xGdWpZVDZBeDEzcE9wOWZqZGU4NWMzRGkyTFpFSkY3cnJUVWItQ2hQZlg4bENKRjlRSHpJZnhPcUJiRUNkME4wWnVONGNMRWJUYw?oc=5" target="_blank" rel="noopener" class="card">
+                    <h3>“2025年の魚”に選ばれた「世界一醜い」ブロブフィッシュの実像 - ナショナルジオグラフィック日本版</h3>
+                    <p class="description">“2025年の魚”に選ばれた「世界一醜い」ブロブフィッシュの実像  ナショナルジオグラフィック日本版</p>
+                    <div class="card-footer">
+                        <span class="badge">ナショナル ジオグラフィック</span>
+                        <span>Mar 29</span>
+                    </div>
+                </a></div>
 
         <footer>
-            <p>&copy; 2026 News Scraper Pro. Modern News Delivery System.</p>
+            <p>&copy; 2026 RSS Scraper Pro. Modern News Delivery.</p>
         </footer>
     </div>
 

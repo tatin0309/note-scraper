@@ -5,6 +5,11 @@ import time
 import random
 import datetime
 import os
+import re
+import warnings
+import html
+from bs4 import XMLParsedAsHTMLWarning
+warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
 # ==========================================
 # 1. 設定エリア
@@ -12,124 +17,136 @@ import os
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-    "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
 }
 
 OUTPUT_FILENAME = "index.html"
-WAIT_TIME_MIN = 1.0
-WAIT_TIME_MAX = 2.0
-MAX_ARTICLES_PER_SITE = 8
+MAX_ARTICLES_PER_FEED = 10
 
-# スクレイピング設定の集中管理（メンテナンス性向上）
-# 各サイトのHTML構造に合わせたセレクタを定義
-SITE_CONFIGS = {
+# RSSフィード設定（HTML構造に依存しないXML方式）
+FEED_CONFIGS = {
     "朝の新聞": {
         "site_name": "ロイター通信 (テック)",
-        "url": "https://jp.reuters.com/business/technology/",
-        "base_url": "https://jp.reuters.com",
-        "selectors": {
-            "items": "div[data-testid^='StoryCard'], article",
-            "title": "[data-testid='Heading']",
-            "link": "a"
-        }
+        "rss_url": "https://news.google.com/rss/search?q=site:jp.reuters.com%20technology&hl=ja&gl=JP&ceid=JP:ja",
     },
     "創作のネタ": {
         "site_name": "WIRED (サイエンス)",
-        "url": "https://wired.jp/category/science/",
-        "base_url": "https://wired.jp",
-        "selectors": {
-            "items": "div.c-card, article.c-card",
-            "title": "h2.c-card__heading",
-            "link": "a.c-card__link"
-        }
+        "rss_url": "https://news.google.com/rss/search?q=site:wired.jp%20science&hl=ja&gl=JP&ceid=JP:ja",
     },
     "好奇心": {
         "site_name": "ナショナル ジオグラフィック",
-        "url": "https://natgeo.nikkeibp.co.jp/atcl/news/",
-        "base_url": "https://natgeo.nikkeibp.co.jp",
-        "selectors": {
-            "items": "ul.list_news > li",
-            "title": "h3, .title",
-            "link": "a"
-        }
+        "rss_url": "https://news.google.com/rss/search?q=site:natgeo.nikkeibp.co.jp&hl=ja&gl=JP&ceid=JP:ja",
     }
 }
 
 # ==========================================
-# 2. スクレイピング用クラス
+# 2. RSS取得用クラス
 # ==========================================
 
-class NewsScraper:
+class RSSScraper:
     def __init__(self):
         self.session = requests.Session()
         self.session.headers.update(HEADERS)
 
-    def polite_sleep(self):
-        """サイトへの負荷を抑えるための待機"""
-        time.sleep(random.uniform(WAIT_TIME_MIN, WAIT_TIME_MAX))
-
     def get_soup(self, url):
-        """URLからBeautifulSoupオブジェクトを取得"""
+        """URLからBeautifulSoupオブジェクトを取得 (可能な限りXMLとして解析)"""
         try:
-            response = self.session.get(url, timeout=20)
+            response = self.session.get(url, timeout=25)
             response.raise_for_status()
-            response.encoding = response.apparent_encoding
-            return BeautifulSoup(response.text, 'html.parser')
+            
+            # features="xml" を試みる (lxmlが必要)
+            # もしlxmlがない場合は自動的に html.parser にフォールバックされるが明示的に書く
+            try:
+                soup = BeautifulSoup(response.content, features="xml")
+            except Exception:
+                # 失敗した場合は標準の html.parser を使用 (タグ名が小文字になる点に注意)
+                soup = BeautifulSoup(response.content, features="html.parser")
+            return soup
         except Exception as e:
-            print(f"   ⚠️ 取得失敗 ({url}): {e}")
+            print(f"   ⚠️ フィード取得失敗 ({url}): {e}")
             return None
 
     def scrape_category(self, category, config):
-        """特定のサイトから記事情報を抽出"""
-        print(f"🔍 記事取得中: {config['site_name']} ({category})")
-        soup = self.get_soup(config['url'])
+        """RSSフィードから記事情報を抽出"""
+        print(f"🔍 RSS取得中: {config['site_name']} ({category})")
+        soup = self.get_soup(config['rss_url'])
         if not soup: return []
 
         articles = []
-        sel = config['selectors']
-        # 設定されたセレクタに基づいて要素を抽出
-        items = soup.select(sel['items'])
+        # RSS 1.0/2.0 両方の item タグに対応
+        items = soup.find_all('item')
         
         count = 0
         for item in items:
-            if count >= MAX_ARTICLES_PER_SITE: break
+            if count >= MAX_ARTICLES_PER_FEED: break
             try:
                 # タイトルの取得
-                title_tag = item.select_one(sel['title'])
+                title_tag = item.find('title')
                 if not title_tag: continue
                 title = title_tag.text.strip()
                 
-                # リンクの取得（見つからない場合は項目内の最初のaタグを探す）
-                link_tag = item.select_one(sel['link']) or item.find('a')
+                # リンクの取得
+                link_tag = item.find('link')
                 if not link_tag: continue
-                link = link_tag.get('href', '')
+                link = link_tag.text.strip()
+                
+                # linkタグが空でも item の next_sibling 等にある場合があるため補完（BS4のXMLパース挙動対策）
+                if not link:
+                    link = item.link.next_sibling.strip() if item.link and item.link.next_sibling else ""
                 
                 if not link: continue
                 
-                # 相対パスを絶対パスへ変換
-                if not link.startswith('http'):
-                    link = config['base_url'] + link
+                # 公開日時の取得 (pubDate, dc:date, date などに対応)
+                # html.parser の場合はタグ名が小文字になるため両方チェック
+                date_tag = (item.find('pubDate') or item.find('pubdate') or 
+                            item.find('dc:date') or item.find('date'))
+                pub_date = date_tag.text.strip() if date_tag else ""
+                
+                # 日付表示の整形 (RSSの多様な形式に対応)
+                display_date = pub_date
+                if pub_date:
+                    # 簡易的な抽出: RFC822形式(ロイター)やISO形式(ナショジオ)から月/日を推測
+                    match = re.search(r'(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)', pub_date, re.I)
+                    if match:
+                        display_date = f"{match.group(2)} {match.group(1)}"
+                    else:
+                        match = re.search(r'(\d{4})-(\d{1,2})-(\d{1,2})', pub_date)
+                        if match:
+                            display_date = f"{match.group(2)}/{match.group(3)}"
+                
+                # 概要の取得
+                desc_tag = item.find('description')
+                description = desc_tag.text.strip() if desc_tag else ""
+                # HTMLタグの除去と文字数制限
+                if description:
+                    description = re.sub(r'<[^>]+>', '', description)
+                    description = description.replace('\n', ' ').strip()
+                    if len(description) > 100:
+                        description = description[:100] + "..."
 
                 # 重複回避
-                if any(a['url'] == link for a in articles): continue
+                if any(art['url'] == link for art in articles): continue
+
+                # エスケープ処理（特殊文字によるHTML崩れや警告を防止）
+                safe_title = html.escape(html.unescape(title))
+                safe_link = html.escape(link)
+                safe_description = html.escape(html.unescape(description))
 
                 articles.append({
-                    "title": title,
-                    "url": link,
+                    "title": safe_title,
+                    "url": safe_link,
                     "site": config['site_name'],
-                    "date": datetime.date.today().strftime('%m/%d')
+                    "date": display_date,
+                    "description": safe_description
                 })
                 count += 1
             except Exception:
                 continue
         
         print(f"   ✨ {len(articles)}件の記事を取得しました。")
-        self.polite_sleep()
         return articles
 
 # ==========================================
-# 3. HTML生成クラス (Premium Design)
+# 3. HTML生成クラス (タブ切り替え + 概要表示)
 # ==========================================
 
 class HtmlGenerator:
@@ -146,7 +163,7 @@ class HtmlGenerator:
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily News Patrol</title>
+    <title>RSS News Patrol</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {{
@@ -157,7 +174,6 @@ class HtmlGenerator:
             --text-muted: #64748b;
             --card-bg: #ffffff;
             --border: #e2e8f0;
-            --accent: #f59e0b;
         }}
         @media (prefers-color-scheme: dark) {{
             :root {{
@@ -180,29 +196,20 @@ class HtmlGenerator:
         header {{
             text-align: center;
             margin-bottom: 40px;
-            padding: 60px 20px;
+            padding: 50px 20px;
             background: linear-gradient(135deg, #1e3a8a, #3b82f6);
             color: white;
             border-radius: 32px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
         }}
-        header::after {{
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-            pointer-events: none;
-        }}
-        header h1 {{ font-size: 3.5rem; margin-bottom: 15px; font-weight: 700; letter-spacing: -0.05em; }}
-        header p {{ font-size: 1.2rem; opacity: 0.9; font-weight: 500; }}
+        header h1 {{ font-size: 3rem; margin-bottom: 10px; font-weight: 700; letter-spacing: -0.05em; }}
+        header p {{ font-size: 1.1rem; opacity: 0.9; }}
 
         .tabs {{
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 40px;
+            gap: 12px;
+            margin-bottom: 30px;
             overflow-x: auto;
             padding: 10px;
             scrollbar-width: none;
@@ -210,104 +217,93 @@ class HtmlGenerator:
         .tabs::-webkit-scrollbar {{ display: none; }}
         
         .tab-btn {{
-            padding: 14px 32px;
-            border: none;
+            padding: 12px 28px;
+            border: 1px solid var(--border);
             background: var(--card-bg);
             color: var(--text-main);
-            border-radius: 20px;
+            border-radius: 99px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
             white-space: nowrap;
-            border: 1px solid var(--border);
         }}
         .tab-btn.active {{
             background: var(--primary);
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
             border-color: var(--primary);
-        }}
-        .tab-btn:hover:not(.active) {{
-            border-color: var(--primary);
-            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }}
 
-        .tab-content {{ display: none; animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1); }}
-        .tab-content.active {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; }}
+        .tab-content {{ display: none; animation: fadeIn 0.5s ease; }}
+        .tab-content.active {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; }}
 
         .card {{
             background: var(--card-bg);
-            border-radius: 24px;
-            padding: 30px;
+            border-radius: 20px;
+            padding: 25px;
             display: flex;
             flex-direction: column;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.3s, box-shadow 0.3s;
             text-decoration: none;
             color: inherit;
             border: 1px solid var(--border);
-            position: relative;
         }}
         .card:hover {{
-            transform: translateY(-10px);
-            box-shadow: 0 25px 30px -10px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             border-color: var(--primary);
         }}
         .card h3 {{
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            margin-bottom: 20px;
-            line-height: 1.5;
+            margin-bottom: 12px;
+            line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
+        }}
+        .description {{
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex-grow: 1;
         }}
         .card-footer {{
             margin-top: auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
-            padding-top: 20px;
+            padding-top: 15px;
             border-top: 1px solid var(--border);
         }}
-        .site-badge {{
+        .badge {{
             background: #eff6ff;
             color: #2563eb;
-            padding: 6px 14px;
-            border-radius: 10px;
-            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
             font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
         }}
         @media (prefers-color-scheme: dark) {{
-            .site-badge {{ background: #1e293b; color: #60a5fa; }}
+            .badge {{ background: #1e293b; color: #60a5fa; }}
         }}
 
-        @keyframes slideUp {{
-            from {{ opacity: 0; transform: translateY(30px); }}
-            to {{ opacity: 1; transform: translateY(0); }}
-        }}
-
-        footer {{
-            text-align: center;
-            margin-top: 100px;
-            padding: 60px;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border);
-            font-weight: 500;
-        }}
+        @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(10px); }} to {{ opacity: 1; transform: translateY(0); }} }}
+        footer {{ text-align: center; margin-top: 80px; padding: 40px; color: var(--text-muted); border-top: 1px solid var(--border); }}
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>News Patrol</h1>
-            <p>{today} | 厳選された最新トピック</p>
+            <p>{today} | 厳選された最新トピック (RSSフィード)</p>
         </header>
 
         <div class="tabs">
@@ -321,7 +317,7 @@ class HtmlGenerator:
         {self._gen_section('curiosity', self.data.get('好奇心', []))}
 
         <footer>
-            <p>&copy; 2026 News Scraper Pro. Modern News Delivery System.</p>
+            <p>&copy; 2026 RSS Scraper Pro. Modern News Delivery.</p>
         </footer>
     </div>
 
@@ -345,14 +341,16 @@ class HtmlGenerator:
         html = f'<div id="{section_id}" class="{status_class}">'
         
         if not articles:
-            html += '<div style="grid-column: 1/-1; text-align: center; padding: 80px; color: var(--text-muted); font-size: 1.1rem;">新しいニュースは見つかりませんでした。</div>'
+            html += '<div style="grid-column: 1/-1; text-align: center; padding: 60px; color: var(--text-muted);">新しいニュースは見つかりませんでした。</div>'
         else:
             for a in articles:
+                desc_html = f'<p class="description">{a["description"]}</p>' if a.get('description') else ""
                 html += f"""
-                <a href="{a['url']}" target="_blank" class="card">
+                <a href="{a['url']}" target="_blank" rel="noopener" class="card">
                     <h3>{a['title']}</h3>
+                    {desc_html}
                     <div class="card-footer">
-                        <span class="site-badge">{a['site']}</span>
+                        <span class="badge">{a['site']}</span>
                         <span>{a['date']}</span>
                     </div>
                 </a>"""
@@ -365,18 +363,23 @@ class HtmlGenerator:
 # ==========================================
 
 def main():
-    print("🚀 ニュース巡回（ロイター / WIRED / ナショジオ）を開始します...")
-    scraper = NewsScraper()
+    print("🚀 RSSフィード巡回を開始します...")
+    scraper = RSSScraper()
+    
+    # カテゴリデータの初期化 (構文エラー防止のためシンプルに)
     collected_data = {}
+    collected_data["朝の新聞"] = []
+    collected_data["創作のネタ"] = []
+    collected_data["好奇心"] = []
 
-    # 各カテゴリのサイトからデータを収集
-    for category, config in SITE_CONFIGS.items():
+    # 各カテゴリのフィードからデータを収集
+    for category, config in FEED_CONFIGS.items():
         try:
-            # 各サイトの処理を try-except で囲み、一つが失敗しても他を続行できるようにする
-            collected_data[category] = scraper.scrape_category(category, config)
+            # フィードごとに独立して処理し、一カ所のエラーが全体に影響しないようにする
+            articles = scraper.scrape_category(category, config)
+            collected_data[category] = articles
         except Exception as e:
-            print(f"   🔥 カテゴリ「{category}」でエラーが発生しましたが、続行します: {e}")
-            collected_data[category] = []
+            print(f"   🔥 カテゴリ「{category}」で予期せぬエラーが発生しましたが、続行します: {e}")
 
     # HTML生成と保存
     print("\n📝 レポートを作成中...")
@@ -389,10 +392,6 @@ def main():
         print(f"\n✅ 完了！結果を {OUTPUT_FILENAME} に保存しました。")
     except Exception as e:
         print(f"   ❌ ファイル保存に失敗しました: {e}")
-
-    # GitHub Actions等のCI環境で実行する場合を考慮し、ブラウザ起動は無効化
-    # import webbrowser
-    # webbrowser.open("file://" + os.path.abspath(OUTPUT_FILENAME))
 
 if __name__ == "__main__":
     main()
