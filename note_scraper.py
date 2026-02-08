@@ -372,8 +372,8 @@ def main():
     with open(OUTPUT_FILENAME, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"✅ 完了！ '{OUTPUT_FILENAME}' をブラウザで開きます。")
-    webbrowser.open("file://" + os.path.abspath(OUTPUT_FILENAME))
+    # print(f"✅ 完了！ '{OUTPUT_FILENAME}' をブラウザで開きます。")
+    # webbrowser.open("file://" + os.path.abspath(OUTPUT_FILENAME))
 
 if __name__ == "__main__":
     main()
