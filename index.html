@@ -4,256 +4,393 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Note Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Outfit:wght@600&display=swap" rel="stylesheet">
+    <title>Note Insight Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --primary: #38bdf8;
-            --accent: #10b981;
-            --text-main: #f1f5f9;
-            --text-dim: #94a3b8;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg: #f8fafc;
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
         }
-        * { box-sizing: border-box; }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0f172a;
+                --card-bg: #1e293b;
+                --text-main: #f1f5f9;
+                --text-muted: #94a3b8;
+                --border: #334155;
+            }
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Noto Sans JP', sans-serif;
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
             background: var(--bg);
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.15) 0, transparent 40%),
-                radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.1) 0, transparent 40%);
             color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
+            line-height: 1.6;
+            padding: 20px;
         }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
+        .container { max-width: 1000px; margin: 0 auto; }
         header {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3);
         }
-        h1 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(to right, #38bdf8, #10b981);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .date-badge {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            padding: 8px 20px;
-            border-radius: 99px;
-            font-size: 0.9rem;
-            color: var(--text-dim);
-        }
-        
-        /* Tabs */
+        header h1 { font-size: 2.5rem; margin-bottom: 8px; letter-spacing: -0.025em; }
+        header p { opacity: 0.9; font-weight: 500; }
+
         .tabs {
             display: flex;
-            gap: 10px;
             justify-content: center;
-            margin-bottom: 40px;
-            padding: 5px;
-            background: var(--glass);
-            border-radius: 16px;
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(10px);
+            gap: 8px;
+            margin-bottom: 32px;
+            overflow-x: auto;
+            padding-bottom: 8px;
         }
         .tab-btn {
-            background: transparent;
-            border: none;
-            padding: 12px 24px;
-            color: var(--text-dim);
+            padding: 10px 24px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            border-radius: 99px;
             font-weight: 700;
             cursor: pointer;
-            border-radius: 12px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s;
+            white-space: nowrap;
         }
-        .tab-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
         .tab-btn.active {
             background: var(--primary);
-            color: var(--bg);
-            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+            color: white;
+            border-color: var(--primary);
         }
-        
-        /* Grid */
-        .tab-content { display: none; animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+        .tab-btn:hover:not(.active) {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
         .tab-content.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        
-        /* Cards */
-        .article-card {
+
+        .card {
             background: var(--card-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
             padding: 24px;
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            backdrop-filter: blur(5px);
-        }
-        .article-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--primary);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-        .article-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 4px;
-            background: linear-gradient(to right, var(--primary), var(--accent));
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .article-card:hover::before { opacity: 1; }
-        
-        .article-title {
-            font-size: 1.15rem;
-            line-height: 1.5;
-            margin: 0 0 15px 0;
-            font-weight: 700;
-        }
-        .article-title a {
+            transition: transform 0.2s, box-shadow 0.2s;
             text-decoration: none;
-            color: var(--text-main);
-            transition: color 0.3s;
+            color: inherit;
         }
-        .article-card:hover .article-title a { color: var(--primary); }
-        
-        .article-footer {
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -8px rgba(0,0,0,0.15);
+            border-color: var(--primary);
+        }
+        .card h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .card-footer {
+            margin-top: auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: auto;
-            border-top: 1px solid var(--glass-border);
-            padding-top: 15px;
-            font-size: 0.85rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
         }
-        .author-name { color: var(--text-dim); display: flex; align-items: center; gap: 5px; }
-        .author-name::before { content: '👤'; font-size: 1rem; }
-        .tag-pill {
-            background: rgba(56, 189, 248, 0.1);
-            color: var(--primary);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 80px;
-            color: var(--text-dim);
-            font-size: 0.8rem;
-            opacity: 0.6;
-        }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @media (max-width: 600px) {
-            .tabs { flex-direction: column; padding: 10px; }
-            .tab-btn { width: 100%; }
-            h1 { font-size: 1.8rem; }
-        }
+        .author { font-weight: 600; color: var(--primary); }
+        .tag { background: var(--bg); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        footer { text-align: center; margin-top: 60px; color: var(--text-muted); padding: 40px; border-top: 1px solid var(--border); }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Note Insight</h1>
-            <span class="date-badge">Report generated on 2026-02-08</span>
+            <p>Generated on 2026-02-08</p>
         </header>
-        
+
         <div class="tabs">
-            <button class="tab-btn active" onclick="openTab(event, 'tab-news')">朝の新聞</button>
-            <button class="tab-btn" onclick="openTab(event, 'tab-creative')">創作のネタ</button>
-            <button class="tab-btn" onclick="openTab(event, 'tab-curiosity')">好奇心</button>
-            <button class="tab-btn" onclick="openTab(event, 'tab-bookmarks')">フォロー中</button>
+            <button class="tab-btn active" onclick="openTab(event, 'news')">朝の新聞</button>
+            <button class="tab-btn" onclick="openTab(event, 'creative')">創作のネタ</button>
+            <button class="tab-btn" onclick="openTab(event, 'curiosity')">好奇心</button>
+            <button class="tab-btn" onclick="openTab(event, 'bookmarks')">ブックマーク</button>
         </div>
-        <div id="tab-news" class="tab-content active"><div class="article-card" style="grid-column: 1/-1; text-align: center;"><p>新しい記事は見つかりませんでした。</p></div></div><div id="tab-creative" class="tab-content"><div class="article-card" style="grid-column: 1/-1; text-align: center;"><p>新しい記事は見つかりませんでした。</p></div></div><div id="tab-curiosity" class="tab-content"><div class="article-card" style="grid-column: 1/-1; text-align: center;"><p>新しい記事は見つかりませんでした。</p></div></div><div id="tab-bookmarks" class="tab-content">
-                <div class="article-card">
-                    <h3 class="article-title">
-                        <a href="" target="_blank">より多くの人に届けやすく！記事をThreadsにシェアできるようになりました</a>
-                    </h3>
-                    <div class="article-footer">
-                        <span class="author-name">info</span>
-                        <span class="tag-pill">ブックマークしたクリエイターの</span>
+
+        <div id="news" class="tab-content active">
+                <a href="https://note.com/peco_kabu/n/n3ea738fe1979" target="_blank" class="card">
+                    <h3>1/26 日本経済新聞 要注目の記事と銘柄</h3>
+                    <div class="card-footer">
+                        <span class="author">@ぺこ株</span>
+                        <span class="tag">キーワード「日本経済」の結果</span>
                     </div>
-                </div>
-                    
-                <div class="article-card">
-                    <h3 class="article-title">
-                        <a href="" target="_blank">あなたの幸せな働き方について教えてください！お題企画「#いい働き方ってなんだろう」で募集します。</a>
-                    </h3>
-                    <div class="article-footer">
-                        <span class="author-name">info</span>
-                        <span class="tag-pill">ブックマークしたクリエイターの</span>
+                </a>
+                
+                <a href="https://note.com/peco_kabu/n/n23b601ddee46" target="_blank" class="card">
+                    <h3>2/2 日本経済新聞 要注目の記事と銘柄</h3>
+                    <div class="card-footer">
+                        <span class="author">@ぺこ株</span>
+                        <span class="tag">キーワード「日本経済」の結果</span>
                     </div>
-                </div>
-                    
-                <div class="article-card">
-                    <h3 class="article-title">
-                        <a href="" target="_blank">【2026年】note新機能（カイゼン）のお知らせまとめ</a>
-                    </h3>
-                    <div class="article-footer">
-                        <span class="author-name">info</span>
-                        <span class="tag-pill">ブックマークしたクリエイターの</span>
+                </a>
+                
+                <a href="https://note.com/peco_kabu/n/nbb393048e4bd" target="_blank" class="card">
+                    <h3>1/30 日本経済新聞 要注目の記事と銘柄</h3>
+                    <div class="card-footer">
+                        <span class="author">@ぺこ株</span>
+                        <span class="tag">キーワード「日本経済」の結果</span>
                     </div>
-                </div>
-                    
-                <div class="article-card">
-                    <h3 class="article-title">
-                        <a href="" target="_blank">【朝メモ】 Bitcoin急落 / 衆院情勢 / AI進化</a>
-                    </h3>
-                    <div class="article-footer">
-                        <span class="author-name">goto_finance</span>
-                        <span class="tag-pill">ブックマークしたクリエイターの</span>
+                </a>
+                
+                <a href="https://note.com/shinchan194/n/needf62883b38" target="_blank" class="card">
+                    <h3>時代遅れの絶望から大逆転。微細化の限界で詰んだ私が救われた、最新半導体技術の衝撃※プロンプト付</h3>
+                    <div class="card-footer">
+                        <span class="author">@アラ還AIプログラマ</span>
+                        <span class="tag">キーワード「最新技術」の結果</span>
                     </div>
-                </div>
-                    
-                <div class="article-card">
-                    <h3 class="article-title">
-                        <a href="" target="_blank">【朝メモ】 金が急落 銀は一時30%安</a>
-                    </h3>
-                    <div class="article-footer">
-                        <span class="author-name">goto_finance</span>
-                        <span class="tag-pill">ブックマークしたクリエイターの</span>
+                </a>
+                
+                <a href="https://energy-note.jpn.panasonic.com/n/nfecd4f4a43b7" target="_blank" class="card">
+                    <h3>パナソニック エナジーの最新技術―EV用リチウムイオン電池の高容量化への挑戦</h3>
+                    <div class="card-footer">
+                        <span class="author">@Unknown</span>
+                        <span class="tag">キーワード「最新技術」の結果</span>
                     </div>
-                </div>
-                    
-                <div class="article-card">
-                    <h3 class="article-title">
-                        <a href="" target="_blank">【Newspedia】 ウォーシュ氏の横顔 FRB新議長 指名へ</a>
-                    </h3>
-                    <div class="article-footer">
-                        <span class="author-name">goto_finance</span>
-                        <span class="tag-pill">ブックマークしたクリエイターの</span>
+                </a>
+                
+                <a href="https://note.com/40challenge_/n/neb90cd195ac3" target="_blank" class="card">
+                    <h3>動画生成AIなんて、映画監督の仕事だと思ってた。45歳が最新技術に触れてみた結果。</h3>
+                    <div class="card-footer">
+                        <span class="author">@佐藤旭（旧ぱきら）｜40代からの「ひとりビジネス」をAIでアップデート ログ</span>
+                        <span class="tag">キーワード「最新技術」の結果</span>
                     </div>
+                </a>
+                
+                <a href="https://note.com/opt_in/n/nceb119fc078e" target="_blank" class="card">
+                    <h3>「n8n × AI」トレンド自動検知システム （今バズるネタで無料オファーを拡散する戦略）</h3>
+                    <div class="card-footer">
+                        <span class="author">@アダアフィ最強</span>
+                        <span class="tag">キーワード「AIトレンド」の結</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/ihayato/n/ne7e63c56f314" target="_blank" class="card">
+                    <h3>稼ぎたいなら抑えるべし！2026年注目のAIトレンド5選。</h3>
+                    <div class="card-footer">
+                        <span class="author">@イケハヤ</span>
+                        <span class="tag">キーワード「AIトレンド」の結</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/kawakijourney_ai/n/n886991d92987" target="_blank" class="card">
+                    <h3>【AIニュース】今週私が気になった最新のAIトレンドニュースを解説しますMidjourney/imageFX/ChatGPT/Whisk/imagen4/Gemini/生成AI/AI美女/副業/AI副業/Nanobanana/Sora2</h3>
+                    <div class="card-footer">
+                        <span class="author">@AI かわき｜世界一優しいAI画像生成の解説</span>
+                        <span class="tag">キーワード「AIトレンド」の結</span>
+                    </div>
+                </a>
                 </div>
-                    </div><footer>&copy; 2026 Premium Note Scraper. Designed with AI.</footer></div>
+        <div id="creative" class="tab-content">
+                <a href="https://note.com/nenkandokusyojin/n/n76ae03dd2ae6" target="_blank" class="card">
+                    <h3>小川一水 『コロロギ岳から木星トロヤへ』 ： ハードSF的設定とラノベ的キャラクター</h3>
+                    <div class="card-footer">
+                        <span class="author">@年間読書人</span>
+                        <span class="tag">キーワード「SF設定」の結果</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/hearty_broom5209/n/nc22b4b221880" target="_blank" class="card">
+                    <h3>木星型惑星の輪、土星の輪のSF設定。</h3>
+                    <div class="card-footer">
+                        <span class="author">@@</span>
+                        <span class="tag">キーワード「SF設定」の結果</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/nyalra2/n/n6272e2dcd3f1" target="_blank" class="card">
+                    <h3>いもうと</h3>
+                    <div class="card-footer">
+                        <span class="author">@nyalra</span>
+                        <span class="tag">キーワード「SF設定」の結果</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/20040831/n/nc69bc7531fcb" target="_blank" class="card">
+                    <h3>【解説】展示「あの職員室」の中にあったもの（ネタバレ有）</h3>
+                    <div class="card-footer">
+                        <span class="author">@展示「あの職員室」11/15〜12/7</span>
+                        <span class="tag">キーワード「歴史 ミステリー」</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/serene_hebe1710/n/n60b1f84f47b9" target="_blank" class="card">
+                    <h3>【メンタルヘルス｜心理ミステリーの書き方１】心の奥底を覗く「Why」の深淵：物語に深みを与える基礎理論</h3>
+                    <div class="card-footer">
+                        <span class="author">@案内人</span>
+                        <span class="tag">キーワード「歴史 ミステリー」</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/think_easily/n/nf72efff5a655" target="_blank" class="card">
+                    <h3>［座・読書］～歴史ミステリ探訪『黄金流砂』中津文彦：著［1130文字］</h3>
+                    <div class="card-footer">
+                        <span class="author">@はーぼ</span>
+                        <span class="tag">キーワード「歴史 ミステリー」</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/wise_rat6355/n/nab116e93e63c" target="_blank" class="card">
+                    <h3>【宣言】2026年の目標を公開します。noteで結果を出す×私生活を整えるを両立させる年にする 🙌 【自己紹介/公務員/夢ライトノベル作家/長編ダークファンタジー小説/創作活動/最近の学び/仕事始め/日常/コラム日記】</h3>
+                    <div class="card-footer">
+                        <span class="author">@ゆき@公務員×夢はライトノベル作家</span>
+                        <span class="tag">キーワード「ファンタジー」の結</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/wise_rat6355/n/n9eabc6797c54" target="_blank" class="card">
+                    <h3>【ルミナール戦記】第４話 配給｜note連載小説｜長編戦記ダークファンタジー｜ライトノベル｜ラノベ｜運命の物語｜創作活動</h3>
+                    <div class="card-footer">
+                        <span class="author">@ゆき@公務員×夢はライトノベル作家</span>
+                        <span class="tag">キーワード「ファンタジー」の結</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/wise_rat6355/n/n3d46628444d1" target="_blank" class="card">
+                    <h3>【ルミナール戦記】第５話 初訓練｜note連載小説｜長編戦記ダークファンタジー｜ライトノベル｜ラノベ｜運命の物語｜創作活動</h3>
+                    <div class="card-footer">
+                        <span class="author">@ゆき@公務員×夢はライトノベル作家</span>
+                        <span class="tag">キーワード「ファンタジー」の結</span>
+                    </div>
+                </a>
+                </div>
+        <div id="curiosity" class="tab-content">
+                <a href="https://note.com/jacobollbie/n/nf359cc50c4db" target="_blank" class="card">
+                    <h3>深海生物🪼</h3>
+                    <div class="card-footer">
+                        <span class="author">@jacobollbie【画家】</span>
+                        <span class="tag">キーワード「深海生物」の結果</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/manga_manjyuu/n/n411c73b706f4" target="_blank" class="card">
+                    <h3>サメのハンバーガーと深海生物のフライ</h3>
+                    <div class="card-footer">
+                        <span class="author">@漫画大好きまんじゅう</span>
+                        <span class="tag">キーワード「深海生物」の結果</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/eager_phlox1695/n/n6526db96f6f9" target="_blank" class="card">
+                    <h3>深海生物の進化（400字程度の短文）</h3>
+                    <div class="card-footer">
+                        <span class="author">@永石ジュンヤ</span>
+                        <span class="tag">キーワード「深海生物」の結果</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/rough_ox/n/n8d8f63efc649" target="_blank" class="card">
+                    <h3>蒲郡・延命山 大秘殿 ― かつて存在した“珍スポット界のエース”の今は・・！？</h3>
+                    <div class="card-footer">
+                        <span class="author">@カナクラ・ハイゴ</span>
+                        <span class="tag">キーワード「珍スポット」の結果</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/ajisashi/n/n15841fa51a52" target="_blank" class="card">
+                    <h3>神社のためだけの踏切  20260131</h3>
+                    <div class="card-footer">
+                        <span class="author">@ajisashi ajisashi</span>
+                        <span class="tag">キーワード「珍スポット」の結果</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/nutsbookstand/n/nd4157ba7593e" target="_blank" class="card">
+                    <h3>八画文化会館の後続誌に名前をつける旅｜独立日記 本屋への道347</h3>
+                    <div class="card-footer">
+                        <span class="author">@Nuts Book Stand</span>
+                        <span class="tag">キーワード「珍スポット」の結果</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/okenmagazine/n/n4fcc4211b384" target="_blank" class="card">
+                    <h3>明日１２日は爆裂都市伝説に出演します。</h3>
+                    <div class="card-footer">
+                        <span class="author">@大槻ケンヂ(オーケン)notemagazine</span>
+                        <span class="tag">キーワード「都市伝説」の結果</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/okenmagazine/n/nf33f263f5ac7" target="_blank" class="card">
+                    <h3>明後日10日は吉祥寺弾き語り。おかげさまソールドです。12日は爆裂都市伝説に出演します。</h3>
+                    <div class="card-footer">
+                        <span class="author">@大槻ケンヂ(オーケン)notemagazine</span>
+                        <span class="tag">キーワード「都市伝説」の結果</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/reipichu/n/n6eb3b8924829" target="_blank" class="card">
+                    <h3>【僕の都市伝説】ファフロツキーズ現象｜意味が分かると怖い話</h3>
+                    <div class="card-footer">
+                        <span class="author">@零ぴちゅ。</span>
+                        <span class="tag">キーワード「都市伝説」の結果</span>
+                    </div>
+                </a>
+                </div>
+        <div id="bookmarks" class="tab-content">
+                <a href="https://note.com/info/n/ncd5299e350a8" target="_blank" class="card">
+                    <h3>より多くの人に届けやすく！記事をThreadsにシェアできるようになりました</h3>
+                    <div class="card-footer">
+                        <span class="author">@info</span>
+                        <span class="tag">ブックマークの新着</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/info/n/n16123dcef844" target="_blank" class="card">
+                    <h3>あなたの幸せな働き方について教えてください！お題企画「#いい働き方ってなんだろう」で募集します。</h3>
+                    <div class="card-footer">
+                        <span class="author">@info</span>
+                        <span class="tag">ブックマークの新着</span>
+                    </div>
+                </a>
+                
+                <a href="https://note.com/info/n/nb50a11d765b8" target="_blank" class="card">
+                    <h3>【2026年】note新機能（カイゼン）のお知らせまとめ</h3>
+                    <div class="card-footer">
+                        <span class="author">@info</span>
+                        <span class="tag">ブックマークの新着</span>
+                    </div>
+                </a>
+                </div>
+
+        <footer>
+            <p>&copy; 2026 Note Scraper Pro. Inspired by your curiosity.</p>
+        </footer>
+    </div>
+
     <script>
-        function openTab(event, tabId) {
-            const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(c => c.classList.remove('active'));
-            
-            const btns = document.querySelectorAll('.tab-btn');
-            btns.forEach(b => b.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.add('active');
-            if(event) event.currentTarget.classList.add('active');
+        function openTab(e, id) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            e.currentTarget.classList.add('active');
         }
     </script>
-        </body></html>
+</body>
+</html>

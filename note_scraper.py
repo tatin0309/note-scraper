@@ -142,9 +142,18 @@ class NoteScraper:
         items = soup.find_all('item')
         for item in items[:MAX_ARTICLES_PER_KEYWORD]:
             try:
+                # RSSの <link> タグは html.parser だと正しくテキストが取れない場合があるため、手法を工夫
+                link = ""
+                link_tag = item.find('link')
+                if link_tag:
+                    link = link_tag.text.strip() or item.link.next_sibling.strip()
+                
+                # もし空なら title をヒントにするなどの処理はせず、スキップ
+                if not link: continue
+
                 articles.append({
                     "title": item.title.text.strip(),
-                    "url": item.link.text.strip(),
+                    "url": link,
                     "author": user_id,
                     "summary": "ブックマークの新着",
                     "date": item.pubdate.text[:16] if item.pubdate else ""
@@ -349,7 +358,7 @@ class HtmlGenerator:
 def main():
     print("🚀 スクレイピングを開始します（動かない場合は User-Agent を調整してください）...")
     scraper = NoteScraper()
-    collected_data = {{k: [] for k in ["朝の新聞", "創作のネタ", "好奇心", "ブックマーク"]}}
+    collected_data = {k: [] for k in ["朝の新聞", "創作のネタ", "好奇心", "ブックマーク"]}
 
     # 1. キーワード検索
     for category, keywords in SEARCH_RULES.items():
