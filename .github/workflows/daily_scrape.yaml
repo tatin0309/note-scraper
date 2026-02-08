@@ -3,34 +3,36 @@ name: Daily Scraper
 on:
   schedule:
     # 毎日21:00（日本時間の朝6:00）に実行
-    - cron: '0 21 * * *'
+    - cron: "0 21 * * *"
   workflow_dispatch: # 手動で実行ボタンも出せるようにする
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install requests beautifulsoup4
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
 
-    - name: Run scraper
-      run: python note_scraper.py
+      - name: Run scraper
+        run: python note_scraper.py
 
-    - name: Commit and Push
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add index.html
-        git commit -m "Update Daily News" || exit 0
-        git push
+      - name: Commit and Push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add index.html
+          git commit -m "Update Daily News" || exit 0
+          git push
