@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Note Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Outfit:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --primary: #38bdf8;
+            --accent: #10b981;
+            --text-main: #f1f5f9;
+            --text-dim: #94a3b8;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: var(--bg);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.15) 0, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.1) 0, transparent 40%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #38bdf8, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .date-badge {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 8px 20px;
+            border-radius: 99px;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 40px;
+            padding: 5px;
+            background: var(--glass);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 12px 24px;
+            color: var(--text-dim);
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tab-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+        .tab-btn.active {
+            background: var(--primary);
+            color: var(--bg);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+        }
+        
+        /* Grid */
+        .tab-content { display: none; animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+        .tab-content.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        
+        /* Cards */
+        .article-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            backdrop-filter: blur(5px);
+        }
+        .article-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .article-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .article-card:hover::before { opacity: 1; }
+        
+        .article-title {
+            font-size: 1.15rem;
+            line-height: 1.5;
+            margin: 0 0 15px 0;
+            font-weight: 700;
+        }
+        .article-title a {
+            text-decoration: none;
+            color: var(--text-main);
+            transition: color 0.3s;
+        }
+        .article-card:hover .article-title a { color: var(--primary); }
+        
+        .article-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            border-top: 1px solid var(--glass-border);
+            padding-top: 15px;
+            font-size: 0.85rem;
+        }
+        .author-name { color: var(--text-dim); display: flex; align-items: center; gap: 5px; }
+        .author-name::before { content: '👤'; font-size: 1rem; }
+        .tag-pill {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 80px;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 600px) {
+            .tabs { flex-direction: column; padding: 10px; }
+            .tab-btn { width: 100%; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Note Insight</h1>
+            <span class="date-badge">Report generated on 2026-02-08</span>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'tab-news')">朝の新聞</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-creative')">創作のネタ</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-curiosity')">好奇心</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-bookmarks')">フォロー中</button>
+        </div>
+        <div id="tab-news" class="tab-content active"><div class="article-card" style="grid-column: 1/-1; text-align: center;"><p>新しい記事は見つかりませんでした。</p></div></div><div id="tab-creative" class="tab-content"><div class="article-card" style="grid-column: 1/-1; text-align: center;"><p>新しい記事は見つかりませんでした。</p></div></div><div id="tab-curiosity" class="tab-content"><div class="article-card" style="grid-column: 1/-1; text-align: center;"><p>新しい記事は見つかりませんでした。</p></div></div><div id="tab-bookmarks" class="tab-content">
+                <div class="article-card">
+                    <h3 class="article-title">
+                        <a href="" target="_blank">より多くの人に届けやすく！記事をThreadsにシェアできるようになりました</a>
+                    </h3>
+                    <div class="article-footer">
+                        <span class="author-name">info</span>
+                        <span class="tag-pill">ブックマークしたクリエイターの</span>
+                    </div>
+                </div>
+                    
+                <div class="article-card">
+                    <h3 class="article-title">
+                        <a href="" target="_blank">あなたの幸せな働き方について教えてください！お題企画「#いい働き方ってなんだろう」で募集します。</a>
+                    </h3>
+                    <div class="article-footer">
+                        <span class="author-name">info</span>
+                        <span class="tag-pill">ブックマークしたクリエイターの</span>
+                    </div>
+                </div>
+                    
+                <div class="article-card">
+                    <h3 class="article-title">
+                        <a href="" target="_blank">【2026年】note新機能（カイゼン）のお知らせまとめ</a>
+                    </h3>
+                    <div class="article-footer">
+                        <span class="author-name">info</span>
+                        <span class="tag-pill">ブックマークしたクリエイターの</span>
+                    </div>
+                </div>
+                    
+                <div class="article-card">
+                    <h3 class="article-title">
+                        <a href="" target="_blank">【朝メモ】 Bitcoin急落 / 衆院情勢 / AI進化</a>
+                    </h3>
+                    <div class="article-footer">
+                        <span class="author-name">goto_finance</span>
+                        <span class="tag-pill">ブックマークしたクリエイターの</span>
+                    </div>
+                </div>
+                    
+                <div class="article-card">
+                    <h3 class="article-title">
+                        <a href="" target="_blank">【朝メモ】 金が急落 銀は一時30%安</a>
+                    </h3>
+                    <div class="article-footer">
+                        <span class="author-name">goto_finance</span>
+                        <span class="tag-pill">ブックマークしたクリエイターの</span>
+                    </div>
+                </div>
+                    
+                <div class="article-card">
+                    <h3 class="article-title">
+                        <a href="" target="_blank">【Newspedia】 ウォーシュ氏の横顔 FRB新議長 指名へ</a>
+                    </h3>
+                    <div class="article-footer">
+                        <span class="author-name">goto_finance</span>
+                        <span class="tag-pill">ブックマークしたクリエイターの</span>
+                    </div>
+                </div>
+                    </div><footer>&copy; 2026 Premium Note Scraper. Designed with AI.</footer></div>
+    <script>
+        function openTab(event, tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.remove('active'));
+            
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            if(event) event.currentTarget.classList.add('active');
+        }
+    </script>
+        </body></html>
