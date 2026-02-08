@@ -2,8 +2,8 @@ name: Daily Scraper
 
 on:
   schedule:
-    # 毎日21:00（日本時間の朝6:00）に実行
-    - cron: "0 21 * * *"
+    # 日本時間 朝6:00 (UTC 21:00) と 夕方16:00 (UTC 07:00)
+    - cron: "0 7,21 * * *"
   workflow_dispatch: # 手動で実行ボタンも出せるようにする
 
 jobs:
@@ -27,6 +27,8 @@ jobs:
           pip install requests beautifulsoup4
 
       - name: Run scraper
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python note_scraper.py
 
       - name: Commit and Push
