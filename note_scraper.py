@@ -116,7 +116,9 @@ class NewsFormatter:
     @staticmethod
     def generate_html(all_news):
         """HTML形式のレポートを作成"""
-        now_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # 日本時間 (UTC+9) を取得
+        JST = datetime.timezone(datetime.timedelta(hours=9))
+        now_str = datetime.datetime.now(JST).strftime('%Y-%m-%d %H:%M:%S')
         
         html = f"""
 <!DOCTYPE html>
