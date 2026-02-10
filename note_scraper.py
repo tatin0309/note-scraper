@@ -2,6 +2,9 @@ import feedparser
 import re
 import os
 import sys
+import schedule
+import time
+import datetime
 
 # ==========================================
 # 1. 設定
@@ -103,9 +106,11 @@ class NewsFormatter:
     @staticmethod
     def format_text(all_news):
         """テキスト形式のレポートを作成"""
+        now_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         lines = []
         lines.append("==================================================")
-        lines.append("              Daily News Report                   ")
+        lines.append(f"              Daily News Report                   ")
+        lines.append(f"          {now_str}                       ")
         lines.append("==================================================")
         lines.append("")
         
@@ -129,8 +134,8 @@ class NewsFormatter:
 # 3. メイン処理
 # ==========================================
 
-def main():
-    print("🚀 ニュース収集を開始します...")
+def job():
+    print(f"\n⏰ 定時実行を開始します: {datetime.datetime.now()}")
     
     fetcher = NewsFetcher()
     all_news = fetcher.fetch_all()
@@ -141,7 +146,8 @@ def main():
     # コンソール出力
     print("\n" + report_text)
     
-    # ファイル出力
+    # ファイル出力 (追記モードではなく上書きモードで最新の状態を保持)
+    # 必要であればファイル名に日時を含めることも可能
     try:
         with open(OUTPUT_FILENAME, "w", encoding="utf-8") as f:
             f.write(report_text)
@@ -150,4 +156,18 @@ def main():
         print(f"\n❌ ファイル保存エラー: {e}")
 
 if __name__ == "__main__":
-    main()
+    # スケジュール設定
+    schedule.every().day.at("06:00").do(job)
+    schedule.every().day.at("12:00").do(job)
+    schedule.every().day.at("18:00").do(job)
+
+    print("🚀 ニュース収集スケジューラーを起動しました。")
+    print("   毎日 06:00, 12:00, 18:00 に実行されます。")
+    print("   終了するには Ctrl+C を押してください。")
+    
+    # 初回実行（動作確認用としてコメントアウトを外してもよい）
+    # job()
+
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
