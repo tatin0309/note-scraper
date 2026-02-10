@@ -2,468 +2,264 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>News Patrol Pro</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#2563eb">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily News Report</title>
     <style>
-        :root {
-            --bg: #f1f5f9;
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --card-bg: #ffffff;
-            --border: #e2e8f0;
-            --safe-area-inset-bottom: env(safe-area-inset-bottom);
-        }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #020617;
-                --card-bg: #0f172a;
-                --text-main: #f8fafc;
-                --text-muted: #94a3b8;
-                --border: #1e293b;
-            }
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
-            font-family: 'Outfit', 'Noto Sans JP', sans-serif;
-            background: var(--bg);
-            color: var(--text-main);
-            line-height: 1.6;
-            padding-bottom: calc(80px + var(--safe-area-inset-bottom));
-        }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        header {
-            position: sticky; top: 0; z-index: 100;
-            background: var(--bg);
-            padding: 20px 0;
-            margin-bottom: 20px;
-        }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -1px; }
-        .date { font-size: 0.9rem; color: var(--text-muted); }
-
-        .search-container {
-            margin-bottom: 20px;
-        }
-        #searchInput {
-            width: 100%;
-            padding: 14px 20px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            background: var(--card-bg);
-            color: var(--text-main);
-            font-size: 1rem;
-            outline: none;
-            transition: 0.3s;
-        }
-        #searchInput:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
-
-        .tabs {
-            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;
-            scrollbar-width: none;
-        }
-        .tabs::-webkit-scrollbar { display: none; }
-        .tab-btn {
-            padding: 10px 22px; border-radius: 99px; border: 1px solid var(--border);
-            background: var(--card-bg); color: var(--text-main); font-weight: 700;
-            cursor: pointer; white-space: nowrap; transition: 0.3s;
-        }
-        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        .news-list { display: flex; flex-direction: column; gap: 20px; }
-        .card {
-            background: var(--card-bg); border-radius: 24px; overflow: hidden;
-            border: 1px solid var(--border); transition: 0.3s;
-            text-decoration: none; color: inherit; display: block;
-        }
-        .card.read { opacity: 0.6; }
-        .card-img { width: 100%; height: 200px; background-size: cover; background-position: center; }
-        .card-body { padding: 20px; }
-        .card-site { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; }
-        .card h3 { font-size: 1.25rem; margin-bottom: 12px; line-height: 1.3; }
-        .description { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 15px; }
-        .card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; border-top: 1px solid var(--border); padding-top: 15px; }
-
-        /* PWA Float Menu */
-        .bottom-nav {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(37,99,235,0.9); backdrop-filter: blur(10px);
-            padding: 12px 24px; border-radius: 50px; display: flex; gap: 30px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1000;
-        }
-        .nav-item { color: white; text-decoration: none; font-size: 1.2rem; cursor: pointer; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .tab-content { display: none; }
-        .tab-content.active { display: flex; flex-direction: column; gap: 20px; animation: fadeIn 0.4s; }
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; color: #333; }
+        h1 { border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .timestamp { color: #666; font-size: 0.9em; margin-bottom: 30px; }
+        .section { margin-bottom: 40px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+        .section-header { background: #f4f4f4; padding: 10px 15px; font-weight: bold; font-size: 1.2em; border-bottom: 1px solid #ddd; }
+        ul { list-style-type: none; padding: 0; margin: 0; }
+        li { border-bottom: 1px solid #eee; }
+        li:last-child { border-bottom: none; }
+        a { display: block; padding: 12px 15px; text-decoration: none; color: #0066cc; transition: background 0.2s; }
+        a:hover { background: #f9f9f9; text-decoration: underline; }
+        .highlight { color: #e60000; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="header-top">
-                <h1>News Patrol<span style="color:var(--primary)">.</span></h1>
-                <span class="date">2026年02月09日</span>
-            </div>
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="ニュースを検索..." oninput="filterNews()">
-            </div>
-            <div class="tabs">
-                <button class="tab-btn active" onclick="openTab(event, 'morning')">朝の新聞</button>
-                <button class="tab-btn" onclick="openTab(event, 'creative')">創作のネタ</button>
-                <button class="tab-btn" onclick="openTab(event, 'curiosity')">好奇心</button>
-            </div>
-        </header>
+    <h1>Daily News Report</h1>
+    <p class="timestamp">更新日時: 2026-02-10 13:59:10</p>
 
-        <div id="morning" class="tab-content active">
-            <a href="https://news.google.com/rss/articles/CBMigAFBVV95cUxQcTltZzZQeG4yMF9jUmNVRWhPZVZDSHVRTlFnN3o1bklwamVtTi15bU1PMi1wR051Yks1SzBpeGxJZGs1NmNMVHlyWnRnVjRuR2VBcjJEcDhjcE9WeUt0d0k2MTFuWkYzN05rU3A1Q1lUWS1obVJRZ0RBMjBhYWQ3aA?oc=5" target="_blank" rel="noopener" class="card" data-id="af80f569bcfa1148f1a474bda2d29659" onclick="markAsRead('af80f569bcfa1148f1a474bda2d29659')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.8888609579892991/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">📰 ロイター通信 (テック)</div>
-                    <h3>米国株式市場＝上昇、テクノロジー株の回復続く - Reuters</h3>
-                    <div class="description">米国株式市場＝上昇、テクノロジー株の回復続く  Reuters</div>
-                    <div class="card-footer">
-                        <span>Feb 09</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMirAFBVV95cUxPNGVrQVJBMnVaWFJ2RjZaNnNCTktrUHlFenZ2Q3VILWVuYlNiSWhOVDFQME52bGJKbFFnRWw4NWllYVZPWnRQSzNjZmZsWlFhNXZkWFVFalFKSk9GZjZyd2NCVVhnY1BaaTh5R3VYZzAzQTZWV0JEeU1oMU1WdGdTMGk5cTJ2NE9lOVpBM1dJa1V4dGJ1ZHFDZ01fZ2NDU2VWRHpES2drMW5xVmVz?oc=5" target="_blank" rel="noopener" class="card" data-id="3f72089fae5e1da54aafdc830ee3de76" onclick="markAsRead('3f72089fae5e1da54aafdc830ee3de76')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.3152148667472854/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">📰 ロイター通信 (テック)</div>
-                    <h3>Britain to order ships with zero emission technology from 2025 - Reuters</h3>
-                    <div class="description">Britain to order ships with zero emission technology from 2025  Reuters</div>
-                    <div class="card-footer">
-                        <span>Feb 09</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMiX0FVX3lxTE80TWtmbWxicDcySVpYUkJubldjWHl4dUw4RTFBb2dXaG1EcG8tNzlBZ004OEJJdkxVOTNNbGlHNjFjdlFfV3BudjZWRTZUQUJxb1FFRW9jbHo5ak91YXBj?oc=5" target="_blank" rel="noopener" class="card" data-id="f4099693ff38b7b5fd2279d8dde3e66e" onclick="markAsRead('f4099693ff38b7b5fd2279d8dde3e66e')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.5652021764916122/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">📰 ロイター通信 (テック)</div>
-                    <h3>688008.SS - | Stock Price &amp; Latest News | Reuters - Reuters</h3>
-                    <div class="description">688008.SS - | Stock Price &amp; Latest News | Reuters  Reuters</div>
-                    <div class="card-footer">
-                        <span>Oct 23</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMicEFVX3lxTE12SGhndGREckNiemNSbXc0U0VlS2E3MWpqYjg1WDYxQklocUdHSDFBQVoxaHhlN3RYRUN1NGFhT0h3RkxVVGpBb1R2VVhpTEZUMVZGbk93anFKRnlNbXhMQXVkMC1INlF3Wkk0Y3FHYXQ?oc=5" target="_blank" rel="noopener" class="card" data-id="8a270058833d8a907db2d7269f3f156d" onclick="markAsRead('8a270058833d8a907db2d7269f3f156d')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.16507924442442812/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">📰 ロイター通信 (テック)</div>
-                    <h3>Qingdao Gaoce Technology Co Ltd - Reuters</h3>
-                    <div class="description">Qingdao Gaoce Technology Co Ltd  Reuters</div>
-                    <div class="card-footer">
-                        <span>Feb 05</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMi1wFBVV95cUxNR05vcWFaNVFYQ3FNQ2dSS0VPckVKb0JDd1ZnSVBRY2tlX1BRTUlrNzVxSUxZdHlKRFhGeTg2b3Uza2xETG0zdUNkT0l1VmtnYlZJVVA4eW8xcG44QzJUVTdGMlYtY2JoRjJya0txaDd5Y3d3XzlONjlWM20wT29yRTVVUUlyNHRObXloOWFiR1FIUUZMTnJEMUFKdXM5V25aUkxCbzlaTEZXUExfeWlvdzlQV2htTDNJMnAxOFA2NHNPNllvazJjcDFJVGViYkRFMlFidW9USQ?oc=5" target="_blank" rel="noopener" class="card" data-id="5f1fba070da0e5eff456e37c3d80567f" onclick="markAsRead('5f1fba070da0e5eff456e37c3d80567f')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.5973645890396933/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">📰 ロイター通信 (テック)</div>
-                    <h3>U.S. start-up R3, banks test Ripple&#x27;s cross-border payments technology - Reuters</h3>
-                    <div class="description">U.S. start-up R3, banks test Ripple&#x27;s cross-border payments technology  Reuters</div>
-                    <div class="card-footer">
-                        <span>Oct 20</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMivwFBVV95cUxNaS0ySkthZ2tMWF8wbkRPelY3NUJrcjBaYVBaY0t5MnFvdDZZekk2aW9iV1FlM05EQ3QyLXFJU0dnMVIwaWFzVXpiMDZGRmtpQUlQckZKZUU4eUZYWEdyejd2dmJucmJlOXNHX1JHR0UycUx3eGxqd3FNUURDdDljSEVWX29STENka1hYdE9ncU5jYkVjYkJ4RDR3OVo0bDZ5bEJ3X1RHQjdGX2d6a192eU9tT2pNLU1ZSUtLYXRqSQ?oc=5" target="_blank" rel="noopener" class="card" data-id="1ade29c9f23ed243dfcf6c5869abe13e" onclick="markAsRead('1ade29c9f23ed243dfcf6c5869abe13e')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.3913770069202802/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">📰 ロイター通信 (テック)</div>
-                    <h3>UPS tests &#x27;smart lock&#x27; technology in New York apartment buildings - Reuters</h3>
-                    <div class="description">UPS tests &#x27;smart lock&#x27; technology in New York apartment buildings  Reuters</div>
-                    <div class="card-footer">
-                        <span>Jul 17</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMipwFBVV95cUxOT0RPZm15WFNiSnZzcDNuU3pmZkVfaVh3aVNZc3pBbnFMZ2dKVHhtSF9yVGdMdTJkb2Qyb2IyUV9sMXM0Q0l4cmFPQmUtWEFaWjZhLXlNU0xfRjFVTk1ZOGlQbHB1Z3lVM25XRkpRS29YNHV3S2Zjd1lheHg0QVoxa1I4c2h0UnZDUmdnOFMzVWQ4X3RibjZrZG5MeHVhZDMyOS1fRWMwQQ?oc=5" target="_blank" rel="noopener" class="card" data-id="dbd8c41434e1bb53181567980280574e" onclick="markAsRead('dbd8c41434e1bb53181567980280574e')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.06977273315097876/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">📰 ロイター通信 (テック)</div>
-                    <h3>Allen and Company Sun Valley Media and Technology Conference in Sun Valley, Idaho - Reuters</h3>
-                    <div class="description">Allen and Company Sun Valley Media and Technology Conference in Sun Valley, Idaho  Reuters</div>
-                    <div class="card-footer">
-                        <span>Jul 10</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMiyAFBVV95cUxNa2I0Y1ZDZ0xLeDJKTU1qZmpxd2VYTzV4MmhWUUttTmVScW1OSkVxa0tHMEFmRUVNQ19CbVJ1M3dqUFlCdk1yUzYwREZ5OFQ3cTZlSUxFWnVnZC01ZllBelhEaWNYbklkd19CRU9BS3BCcWJOQTFXcW5QRElwQUVTc0V6SUNXQTEzajcwMnFjek91MklZZVBtbFFQdW5Gd3htazlQOWY3cVFRNmZ4cWQyZjJsV1VVRF9FS3h5NUpyVDFmX2VWMkQwaw?oc=5" target="_blank" rel="noopener" class="card" data-id="b8d9ff5a6ace6842a97bfec4b292cd2e" onclick="markAsRead('b8d9ff5a6ace6842a97bfec4b292cd2e')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.9475107355474341/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">📰 ロイター通信 (テック)</div>
-                    <h3>Irish drug trial technology firm Teckro wins $25 million injection - Reuters</h3>
-                    <div class="description">Irish drug trial technology firm Teckro wins $25 million injection  Reuters</div>
-                    <div class="card-footer">
-                        <span>Feb 14</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a></div>
-        <div id="creative" class="tab-content">
-            <a href="https://news.google.com/rss/articles/CBMiZkFVX3lxTE9uQ0k3VDNwdndmMjRzOEdNMXVxR2xOeWtxTWt1WW5QS2tWekJaSXI5ODJybE1RYndQeWNyREx3UWY4WGdkVjZfM1JCTlpKVXBicE55VzhRYVhrQ1NBQjZ1RUk4OHdXZw?oc=5" target="_blank" rel="noopener" class="card" data-id="3f07d837529734d2504f5f37800106ce" onclick="markAsRead('3f07d837529734d2504f5f37800106ce')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.5490436404908855/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🧪 WIRED (サイエンス)</div>
-                    <h3>地下の“大穴”で探求──宇宙になぜ、何かがあるのか？: 「ハイパーカミオカンデ」プロジェクトの射程 - WIRED.jp</h3>
-                    <div class="description">地下の“大穴”で探求──宇宙になぜ、何かがあるのか？: 「ハイパーカミオカンデ」プロジェクトの射程  WIRED.jp</div>
-                    <div class="card-footer">
-                        <span>Feb 04</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTE9ib2hheHNaZ3FwODJVRS1ldnd6bkFIYW16RGh3eEhmTGtsQWpKRUZFZzlsSVRsdERieE9PbmRFX2JvLTZ5T09mUDVnT3JXLVRwMUFxZmhROE9RdERzS19qYmlzR0dkTHVHY1AtT2kyWUxndVk?oc=5" target="_blank" rel="noopener" class="card" data-id="7c01067f5db298af5e7fbe4ad61dbee7" onclick="markAsRead('7c01067f5db298af5e7fbe4ad61dbee7')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.42493734225417146/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🧪 WIRED (サイエンス)</div>
-                    <h3>「BPAフリー」は必ずしも安全ではない？ 代替物質が細胞に及ぼす影響が明らかに - WIRED.jp</h3>
-                    <div class="description">「BPAフリー」は必ずしも安全ではない？ 代替物質が細胞に及ぼす影響が明らかに  WIRED.jp</div>
-                    <div class="card-footer">
-                        <span>Feb 06</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxQVkdMdzhmWGNCQkNHTHMyOGR4LXVnTDFLakppcmZjNmxyWElpVUYwSmV0OXM2YWhSY2NqUk8tS1h5elBQcmszbWJBSC1jdUl3MWpVUC1QTlhRa2tVcGlFVEdwVjhPQXhFM2xCdE9RdmxsOFpHMlFQTnliSmc3M2N6Y0hXQ2Y?oc=5" target="_blank" rel="noopener" class="card" data-id="d1bf170b983daec9a6a7c4022e82f099" onclick="markAsRead('d1bf170b983daec9a6a7c4022e82f099')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.530576588753042/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🧪 WIRED (サイエンス)</div>
-                    <h3>暗黒物質の分布を示す最高精度の地図が、銀河形成の歴史を写し出す - WIRED.jp</h3>
-                    <div class="description">暗黒物質の分布を示す最高精度の地図が、銀河形成の歴史を写し出す  WIRED.jp</div>
-                    <div class="card-footer">
-                        <span>Feb 06</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMilwFBVV95cUxOc0I1MW1BMTh2N1hvTU1rTkJmenJuV2drYTBNREIwOUh3dmdMOHp5aU5xdXcwLTZDRUtxSzZXZTFrNklwZXJVRGdaTDZxb0VyMUFXUXcyb3R3YWZGMEFndmUxMGI0V1dMMmNNczlNd2ZiRXBSbEFkR3dQQnJlak9VRERmdFVYWjA0aHdSUGhybGUzSnlJZ3dR?oc=5" target="_blank" rel="noopener" class="card" data-id="82d126c3c0c9305f66bebede95508535" onclick="markAsRead('82d126c3c0c9305f66bebede95508535')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.32498185358395815/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🧪 WIRED (サイエンス)</div>
-                    <h3>大気中には想像以上に大量のプラスチック粒子が漂っている：研究結果 - WIRED.jp</h3>
-                    <div class="description">大気中には想像以上に大量のプラスチック粒子が漂っている：研究結果  WIRED.jp</div>
-                    <div class="card-footer">
-                        <span>Feb 04</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMifkFVX3lxTFBYU2FoczJ2VXg3cGU0ZGNkZ0swRGpHZVc2UHN6U2dteDZIc01WUHRrMmpvOFBhRDJ3Q0otOTdCTjIweFJabkE5OGp6bHBwTXdPVGV5TzVuNGVNeURqNnkwUVd5Si1WOVBENjlMbndzeWRSX2pDMjctTUdXM1RSQQ?oc=5" target="_blank" rel="noopener" class="card" data-id="df22e045edc4b7b28a10467b31559ef1" onclick="markAsRead('df22e045edc4b7b28a10467b31559ef1')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.7482097015919859/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🧪 WIRED (サイエンス)</div>
-                    <h3>体内で溶ける電子カプセルが、服薬管理の未来を変える - WIRED.jp</h3>
-                    <div class="description">体内で溶ける電子カプセルが、服薬管理の未来を変える  WIRED.jp</div>
-                    <div class="card-footer">
-                        <span>Feb 05</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMidkFVX3lxTE96aGdvMFlMV0h4Mm5KQmpmeDNrdFlScmZ4SEY0dF9WQXppN0JKWWVyYlhLUnlnX1ozUno2NU0yaUZWbENaT2R6ODVVSjlHWXRXaDVxVWgtVFdaeTZUejRVdWx5MG0zakNaZ2FpVElxcG81MzVleWc?oc=5" target="_blank" rel="noopener" class="card" data-id="6f7de91cb645e2d3e0664f53cfb798f5" onclick="markAsRead('6f7de91cb645e2d3e0664f53cfb798f5')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.7105831367170772/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🧪 WIRED (サイエンス)</div>
-                    <h3>「泡の内部」は絶えず動いており、AIの学習原理と数学的にそっくりだった：研究結果 - WIRED.jp</h3>
-                    <div class="description">「泡の内部」は絶えず動いており、AIの学習原理と数学的にそっくりだった：研究結果  WIRED.jp</div>
-                    <div class="card-footer">
-                        <span>Feb 09</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMia0FVX3lxTFAxOWFSdGJ4U1hGLWptQlRFZzJtdnVJZFY0T2FFMmJlV2tWY0dpX21qSE83bVQ1WEg4VWxITmx4T2xnSHIwX0dYWnNBM1BlNncwWFZiamRNeFJGaWxvS2xpRWg0NV9lY1gzWS1v?oc=5" target="_blank" rel="noopener" class="card" data-id="2c36967d33227e2bd5c9dc43575837dc" onclick="markAsRead('2c36967d33227e2bd5c9dc43575837dc')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.17574057936242649/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🧪 WIRED (サイエンス)</div>
-                    <h3>精度は100万分の1秒に！ 五輪の“記録”を刻んできたスポーツ計時の歴史 - WIRED.jp</h3>
-                    <div class="description">精度は100万分の1秒に！ 五輪の“記録”を刻んできたスポーツ計時の歴史  WIRED.jp</div>
-                    <div class="card-footer">
-                        <span>Feb 05</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMib0FVX3lxTE1KOV9UZUkwX3lJNEYtSUtuM1k3RjVfX0w0ZFhWNDNkTTRYcTlXdFpiZlVNZ2pyR09qUGRoNXBtWmlqaEtkNzdhN3BhRjNES3hUbnltVFl0aVI2YlY2blpQM3N2M2ZGNUtRYUR6Y2FRRQ?oc=5" target="_blank" rel="noopener" class="card" data-id="a45411f2e1c03bfb338db402ea38af40" onclick="markAsRead('a45411f2e1c03bfb338db402ea38af40')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.09796195609273262/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🧪 WIRED (サイエンス)</div>
-                    <h3>フードテックの“美しい物語”を、バイオアートの先駆者が解体する - WIRED.jp</h3>
-                    <div class="description">フードテックの“美しい物語”を、バイオアートの先駆者が解体する  WIRED.jp</div>
-                    <div class="card-footer">
-                        <span>Feb 05</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a></div>
-        <div id="curiosity" class="tab-content">
-            <a href="https://news.google.com/rss/articles/CBMiREFVX3lxTE9sWFlTbEJzd3BydWIzYzNoaEVnendyM0hNOW43ZGtleGo4Vnp4SW10YV8xXzd3UUh5MS1aZGtlTF9OTWk4?oc=5" target="_blank" rel="noopener" class="card" data-id="70dbf4c6cb812d34bf2508b3a02d3e42" onclick="markAsRead('70dbf4c6cb812d34bf2508b3a02d3e42')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.025203793032824717/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🦁 ナショナル ジオグラフィック</div>
-                    <h3>ナショナルジオグラフィック日本版サイト - natgeo.nikkeibp.co.jp</h3>
-                    <div class="description">ナショナルジオグラフィック日本版サイト  natgeo.nikkeibp.co.jp</div>
-                    <div class="card-footer">
-                        <span>Jul 13</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTE5ocTBsTkdlLUZYRk8xdURHY25sT2dGRDdFZHhwdjVMZ3BVMUI4SjZZQTZNZml6TlMzOV85RTlEVU90N0ZhT0VZeENubUt1MjFmOFQzUUpmMmFNVU1UVnJQQlB0ZHNnc01sQ2c?oc=5" target="_blank" rel="noopener" class="card" data-id="527a8faf2ddde3bd35c2d59868723725" onclick="markAsRead('527a8faf2ddde3bd35c2d59868723725')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.9750144015442607/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🦁 ナショナル ジオグラフィック</div>
-                    <h3>第2回 「知能指数は80％遺伝」の衝撃 - natgeo.nikkeibp.co.jp</h3>
-                    <div class="description">第2回 「知能指数は80％遺伝」の衝撃  natgeo.nikkeibp.co.jp</div>
-                    <div class="card-footer">
-                        <span>Jan 24</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE5wcmpaUXJZS3pfdG5mNWx3WW13dElSaUl0Rk5CYWVvNzZmRUV5b3NfOVNLdjZZWXNXUFlKYVg3NkZHeEFoY3Y4cTlJdmpzLXJFOG9FV0ZWMlBXbXZJNFB3d3N6NA?oc=5" target="_blank" rel="noopener" class="card" data-id="c9ffe77d7e975c655aac8063bd2ed983" onclick="markAsRead('c9ffe77d7e975c655aac8063bd2ed983')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.8374172082244491/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🦁 ナショナル ジオグラフィック</div>
-                    <h3>人はいつからネコを飼うようになったのか、定説覆す驚きの発見 - natgeo.nikkeibp.co.jp</h3>
-                    <div class="description">人はいつからネコを飼うようになったのか、定説覆す驚きの発見  natgeo.nikkeibp.co.jp</div>
-                    <div class="card-footer">
-                        <span>Dec 01</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE1SV0l1cFc4UmdPSzFPSGNLak13Nl83YkZ4LUwtSm1pcmpxTjc3Szc5TFFqTEtaRDBYVUlMdEZiS2hrNENWSGhQVndTN2V0aXZKUm5VRktEcGxmRXdmeV9BTldLdw?oc=5" target="_blank" rel="noopener" class="card" data-id="c67a7f17fcf981cb990c04fdd2ce31fa" onclick="markAsRead('c67a7f17fcf981cb990c04fdd2ce31fa')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.9568800333600448/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🦁 ナショナル ジオグラフィック</div>
-                    <h3>【動画】ペンギンを狩るピューマたち、パタゴニアでの驚きの変化 - natgeo.nikkeibp.co.jp</h3>
-                    <div class="description">【動画】ペンギンを狩るピューマたち、パタゴニアでの驚きの変化  natgeo.nikkeibp.co.jp</div>
-                    <div class="card-footer">
-                        <span>Feb 04</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE1SNVRON1hSVS15MUFoRUt0RFVBa2tYWlk4UDQ2TGVoQWt5TG9IdjVGdjRteVJDelJXU2ZtOTQ4dXVvU2JEclpHREZfbjk1N3BCeGJYQ2FfUmRLVDVfcWN0VURDdw?oc=5" target="_blank" rel="noopener" class="card" data-id="05dd84e646cfdcbea3e2f3da35039377" onclick="markAsRead('05dd84e646cfdcbea3e2f3da35039377')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.42449865623400806/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🦁 ナショナル ジオグラフィック</div>
-                    <h3>サーベルタイガーのミイラを発見、ついに本当の姿が明らかに - natgeo.nikkeibp.co.jp</h3>
-                    <div class="description">サーベルタイガーのミイラを発見、ついに本当の姿が明らかに  natgeo.nikkeibp.co.jp</div>
-                    <div class="card-footer">
-                        <span>Nov 21</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE01d2xuZ3U0WUoxaW1fdDZ2U0dHaUJMQkk3STR2bWxRbGJ4ZmZaWUdQZV9uU2ZQVHprTVZpSzlSZUhVSVN0eWMzYVdEZzJtOXlfeGs3NUhVbmF3a1RLTkl4VEswWQ?oc=5" target="_blank" rel="noopener" class="card" data-id="f394bc4149a81dee85af53591100eace" onclick="markAsRead('f394bc4149a81dee85af53591100eace')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.2948725877112661/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🦁 ナショナル ジオグラフィック</div>
-                    <h3>うつやADHDも改善、メンタルヘルスにいい食べ物とは、研究続々 - natgeo.nikkeibp.co.jp</h3>
-                    <div class="description">うつやADHDも改善、メンタルヘルスにいい食べ物とは、研究続々  natgeo.nikkeibp.co.jp</div>
-                    <div class="card-footer">
-                        <span>Mar 24</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE03NHdzUWswX2NrRFg2UlNZSUgtOURVZ1E1T0RybzdCVlhtM2RKRmhnWkJMUDlVLV9iWmFZNFQ3UGtYQzZPQTdUemt4TjJUanB4Y2JERk94SG9BVmpOMjFtQzVXbw?oc=5" target="_blank" rel="noopener" class="card" data-id="128be92e8fc0d7eb79dae1cb9a6a844f" onclick="markAsRead('128be92e8fc0d7eb79dae1cb9a6a844f')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.5859086962269939/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🦁 ナショナル ジオグラフィック</div>
-                    <h3>地球史上最低の海水温はマイナス15℃と判明、どういうこと？ - natgeo.nikkeibp.co.jp</h3>
-                    <div class="description">地球史上最低の海水温はマイナス15℃と判明、どういうこと？  natgeo.nikkeibp.co.jp</div>
-                    <div class="card-footer">
-                        <span>Feb 03</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a>
-            <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE92RlVTOUcyZjZvaVJva2Q0MnE3THBtMTRSRlBDSTdDakJQZVRzT1RqWmtBSEp4eHNzQUlXSzNVZ0xfUERteFBtSGZDRWdRdGJQMDhCUVBmS1FrUm9DRklTUTNXZw?oc=5" target="_blank" rel="noopener" class="card" data-id="d8e6e4c6d407f01cc21825a834cef83b" onclick="markAsRead('d8e6e4c6d407f01cc21825a834cef83b')">
-                <div class="card-img" style="background-image: url('https://picsum.photos/seed/0.2913197959221975/600/400')"></div>
-                <div class="card-body">
-                    <div class="card-site">🦁 ナショナル ジオグラフィック</div>
-                    <h3>増える大人のADHD、ネットのやりすぎによる「後天性」の恐れ - natgeo.nikkeibp.co.jp</h3>
-                    <div class="description">増える大人のADHD、ネットのやりすぎによる「後天性」の恐れ  natgeo.nikkeibp.co.jp</div>
-                    <div class="card-footer">
-                        <span>Jan 18</span>
-                        <span style="color:var(--primary)">Read More →</span>
-                    </div>
-                </div>
-            </a></div>
+    <div class="section">
+        <div class="section-header">NHK主要ニュース (社会・総合)</div>
+        <ul>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015048301000" target="_blank">“えひめ丸事故”から25年 生徒など9人犠牲 遺族ら犠牲者悼む</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015048241000" target="_blank">財務相 “食料品の消費税減税 あらゆる論点を国民会議で議論”</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015048121000" target="_blank">プルデンシャル生命 不適切金銭受領で第三者委設置【ライブ】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015048251000" target="_blank">政府 特別国会 来週18日に召集する方針 自民に伝達</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047891000" target="_blank">ガザ地区 停戦合意発効から4か月 「平和評議会」19日にも開催</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015048231000" target="_blank">ドジャース 大谷翔平 山本由伸 佐々木朗希がそろって自主トレ</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015048261000" target="_blank">カメラマン名乗り自宅に連れ込んで性的暴行か 27歳容疑者逮捕</a></li>
 
+        </ul>
     </div>
 
-    <div class="bottom-nav">
-        <div class="nav-item" onclick="window.scrollTo({top:0, behavior:'smooth'})">👆</div>
-        <div class="nav-item" onclick="clearRead()">🧹</div>
-        <div class="nav-item" onclick="location.reload()">🔄</div>
+    <div class="section">
+        <div class="section-header">NHK科学・文化 (創作のネタ)</div>
+        <ul>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015048221000" target="_blank">レッドソックス 吉田正尚 WBCへ意気込み 「必死にプレーする」</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015048231000" target="_blank">ドジャース 大谷翔平 山本由伸 佐々木朗希がそろって自主トレ</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015048011000" target="_blank">フィギュア 鍵山優真 マリニン 男子シングルSPへ前日練習 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047811000" target="_blank">スピードスケート女子1000m 高木美帆が銅メダル 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047921000" target="_blank">アイスホッケー女子 日本はイタリアに敗戦 予選リーグ1勝2敗に</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015048071000" target="_blank">ミラノ・コルティナ五輪 メダルランキング【2月10日】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047851000" target="_blank">スキージャンプ男子ノーマルヒル 二階堂蓮が銅メダル 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047781000" target="_blank">スキージャンプ トップ選手らの飛び方の特徴 「富岳」で分析</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047911000" target="_blank">スノーボード女子ビッグエア 村瀬心椛が金メダル 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047771000" target="_blank">ミラノ・コルティナ五輪【結果】2／9～10タイムライン</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047971000" target="_blank">ミラノ・コルティナ五輪 見どころ【2/10～11】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015048001000" target="_blank">スキー 女子スロープスタイル けがで棄権の近藤心音が帰国へ</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047981000" target="_blank">フィギュア団体 銀の日本 “表彰台で靴の刃欠け”組織委に抗議</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047961000" target="_blank">ロス五輪マラソン代表選考レースMGC 来年10月名古屋で初開催</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047511000" target="_blank">NFL シーホークスがスーパーボウル制覇 12シーズンぶり2回目</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047341000" target="_blank">フィギュア団体“初めてねらって取ったメダル”【解説】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047151000" target="_blank">フィギュア団体 日本が2大会連続の銀 ミラノ・コルティナ五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047321000" target="_blank">男子ゴルフ米ツアー最終ラウンド 松山英樹プレーオフで敗れ2位</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047201000" target="_blank">ミラノ・コルティナ五輪 見どころ【2/9～10】高木美帆が登場</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047231000" target="_blank">スノボ 先月骨折の平野歩夢が初めての本格的な練習 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046691000" target="_blank">ミラノ・コルティナ五輪【結果】2/8～9タイムライン</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047241000" target="_blank">ミラノ・コルティナ五輪 メダルランキング【2月9日】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047221000" target="_blank">ホワイトソックス移籍の村上宗隆 アリゾナで自主トレーニング</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047171000" target="_blank">スノーボード女子ビッグエア 日本勢4人全員が決勝進出 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047141000" target="_blank">フィギュア団体 坂本花織がトップ チーム順位 日本が1位に浮上</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047111000" target="_blank">フィギュア団体 “りくりゅう”ペアがトップ 日本は2位</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047061000" target="_blank">リュージュ男子1人乗り 小林誠也は最後の4回目進めず 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047041000" target="_blank">スピードスケート男子5000メートル 佐々木翔夢が20位 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046791000" target="_blank">スノボ女子パラレル大回転 三木つばき 準々決勝で敗れる 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046631000" target="_blank">サッカーJリーグ特別大会 J1第1節 川崎フロンターレが柏に勝利</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046351000" target="_blank">NBA レイカーズ 八村塁 18得点の活躍で勝利に貢献</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046811000" target="_blank">スキークロスカントリー 男子スキーアスロン 廣瀬崚が22位</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046771000" target="_blank">高市首相 スノボ男子ビッグエア金メダル 木村葵来に祝意伝える</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046681000" target="_blank">スノボ女子パラレル大回転 三木つばきが決勝トーナメント進出</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046731000" target="_blank">スノボ竹内智香 今大会を最後に現役を引退「最高の競技人生」</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046001000" target="_blank">スノーボード 男子ビッグエア 木村葵来が金 木俣椋真が銀 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046221000" target="_blank">大けがで得た“楽しむ” ジャンプ 丸山希が銅メダル【解説】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046331000" target="_blank">伏兵が大会第1号“金メダル” 木村葵来 ビッグエア【解説】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046061000" target="_blank">フィギュア団体 男子シングルSP 鍵山優真トップ 日本2位 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045561000" target="_blank">ミラノ・コルティナ五輪【結果】2/7～8タイムライン</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046161000" target="_blank">ミラノ・コルティナ五輪 見どころ【2/8～9】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046121000" target="_blank">ミラノ・コルティナ五輪 メダルランキング【2月8日】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046111000" target="_blank">リュージュ 男子1人乗り 小林誠也は2回目を終え23位 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046101000" target="_blank">フィギュア団体 アイスダンス フリーダンスで吉田 森田が5位</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045921000" target="_blank">スキージャンプ女子ノーマルヒル 丸山希が銅メダル 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015046011000" target="_blank">スピードスケート 女子3000m 堀川桃香は18位 オリンピック</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045951000" target="_blank">アイスホッケー女子 予選リーグ 日本はドイツに敗れる 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045981000" target="_blank">女子スキーアスロン 土屋正恵は35位 オリンピック</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045821000" target="_blank">ミラノ・コルティナパラへ 代表選手が大会前最後の実戦</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045911000" target="_blank">スキー女子スロープスタイル 古賀結那は決勝進出ならず 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045901000" target="_blank">スノーボード パラレル大回転 三木つばき “目標は金メダル”</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045871000" target="_blank">スキー女子スロープスタイル 近藤心音 けが影響で五輪予選棄権</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045831000" target="_blank">サッカーJリーグ特別大会 J1第1節 FC東京が鹿島に勝利</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045811000" target="_blank">大相撲 元横綱白鵬主催の相撲大会 子どもたちが熱こもった取組</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045851000" target="_blank">ラグビーリーグワン第7節 ワイルドナイツが開幕7連勝 首位守る</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045801000" target="_blank">J3 福島ユナイテッド 三浦知良 Jリーグ特別大会で先発出場</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045751000" target="_blank">「NHK福祉大相撲」 来場所綱とりに挑む安青錦が意気込み示す</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045581000" target="_blank">WBC出場のカブス 鈴木誠也がアリゾナ州で自主トレ</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045471000" target="_blank">ミラノコルティナ五輪 広域開催の会場紹介 どこで何の競技が？</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045461000" target="_blank">ミラノ・コルティナ五輪が開幕 開会式で2か所に聖火【詳報】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045371000" target="_blank">ミラノ・コルティナ五輪【結果】2/6～7タイムライン 開会式</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045331000" target="_blank">ミラノ 米移民税関捜査局職員の五輪派遣に対し各地で抗議活動</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045491000" target="_blank">ミラノ・コルティナ五輪 見どころ【2/7～8】日本勢メダル1号は</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045411000" target="_blank">フィギュア団体 女子シングルSP 坂本花織トップ 日本2位浮上</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045391000" target="_blank">アイホ女子 日本が白星発進 予選リーグ初戦でフランスに勝利</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045401000" target="_blank">サッカーJリーグ特別大会開幕 広島と町田勝利 神戸はPK戦制す</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045361000" target="_blank">フィギュア団体予選ペアSP“りくりゅう”トップで日本6位 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045261000" target="_blank">フィギュア団体 2日目の男子SPはエースの鍵山優真 起用へ 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015044911000" target="_blank">プロ野球 キャンプ 各球団の動きまとめ【2月6日】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045211000" target="_blank">フィギュア団体 アイスダンス 吉田 森田カップル 8位 五輪</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045151000" target="_blank">広島 羽月選手 指定薬物「エトミデート」使用容疑 認める供述</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015044561000" target="_blank">ミラノ・コルティナ五輪開幕へ 現地の様子は</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015045011000" target="_blank">NBA 河村勇輝 自己最多タイの7アシスト 八村塁は14得点</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015044891000" target="_blank">WBC 20チームの代表選手発表 大リーグのトップ選手そろう</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015044631000" target="_blank">スノーボード 男子ビッグエア予選 日本勢全員が決勝進出</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015044621000" target="_blank">五輪 スキージャンプ女子 丸山希や高梨沙羅など4人が公式練習</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015044581000" target="_blank">スピードスケート 高木美帆「トップスピード 最大限出したい」</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015044481000" target="_blank">Jリーグ 各クラブが東西に分かれて戦う特別大会 今夜開幕</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015044501000" target="_blank">五輪 フィギュア団体1日目 女子シングルSPは坂本花織が出場へ</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015044061000" target="_blank">プロ野球 キャンプ 各球団の動きまとめ【2月5日】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015044381000" target="_blank">フィギュア 鍵山優真が試合会場で調整 五輪でメダル獲得期待</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043791000" target="_blank">スマイルジャパン 五輪予選リーグ初戦へ試合会場で調整</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043831000" target="_blank">“2030年の冬季五輪で夏の競技の一部を移行検討” IOC</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043811000" target="_blank">ミラノ・コルティナ五輪 開会式のリハーサル非公開で行われる</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043821000" target="_blank">スノーボード女子ビッグエア 村瀬心椛らが公式練習に参加</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043801000" target="_blank">五輪開幕前にカーリング混合ダブルス 予選リーグ開始</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043841000" target="_blank">ドジャース 大谷翔平 キャンプ地アリゾナ州で自主トレーニング</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015031081000" target="_blank">フィギュアスケート 日程 放送予定 日本代表紹介【全名簿】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015031051000" target="_blank">スピードスケート 日程 放送予定 日本代表紹介【全名簿】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015031021000" target="_blank">カーリング 日程 放送予定 日本代表紹介【全名簿】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015034141000" target="_blank">スノーボード 日程 放送予定 日本代表紹介【全名簿】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015033991000" target="_blank">スキージャンプ 日程 放送予定 日本代表紹介【全名簿】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015034031000" target="_blank">スキーフリースタイル 日程 放送予定 日本代表紹介【全名簿】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015034001000" target="_blank">スキーノルディック複合 日程 放送予定 日本代表【全名簿】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015031091000" target="_blank">アイスホッケー 日程 放送予定 日本代表紹介【全名簿】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015031041000" target="_blank">スケートショートトラック 日程 放送予定 日本代表【全名簿】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015034041000" target="_blank">スキーアルペン 日程 放送予定 日本代表紹介【全名簿】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015034111000" target="_blank">スキークロスカントリー 日程 放送予定 日本代表【全名簿】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043491000" target="_blank">ボブスレー 日程 放送予定【見どころ】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015034121000" target="_blank">リュージュ 日程 放送予定 日本代表紹介【全名簿】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043441000" target="_blank">スケルトン 日程 放送予定 日本代表紹介【全名簿】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043451000" target="_blank">バイアスロン 日程 放送予定【見どころ】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043471000" target="_blank">山岳スキー 日程 放送予定【見どころ】今大会唯一の新競技</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043381000" target="_blank">スノボクロス 吉田蓮生が五輪代表内定 日本選手として今大会初</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043571000" target="_blank">五輪開幕を前に日本選手団のためのサポート施設 報道公開</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043461000" target="_blank">プロ野球 キャンプ 各球団の動きまとめ【2月4日】</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043301000" target="_blank">WBC日本代表メンバー 最後の1人はレッドソックス吉田正尚に</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043321000" target="_blank">NBA八村塁“日本代表への参加 シーズン後検討”新体制発表受け</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043221000" target="_blank">パラリンピック ノルディックスキー 出来島桃子が代表に内定</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043261000" target="_blank">NBA ブルズ 河村勇輝 バックス戦で5得点 自己最多の7アシスト</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043171000" target="_blank">NBA レイカーズ 八村塁 途中出場で5得点 チームは快勝</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015042951000" target="_blank">スピードスケート女子団体パシュート 金メダルへ ミラノで練習</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015042881000" target="_blank">五輪 日本選手団へのひぼう中傷対策でミラノにオフィス設置</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015043071000" target="_blank">ミラノ・コルティナ五輪の日本代表選手モチーフにひな人形</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015042851000" target="_blank">ミラノ・コルティナ五輪選手村が公開 平和を願うボードも</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015042901000" target="_blank">ミラノ・コルティナ五輪 スノボ男子 戸塚優斗らが意気込み</a></li>
+
+        </ul>
     </div>
 
-    <script>
-        // 1. タブ切り替え
-        function openTab(e, id) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            e.currentTarget.classList.add('active');
-            window.scrollTo(0, 0);
-        }
+    <div class="section">
+        <div class="section-header">はてなブックマーク (世論・ホットエントリ)</div>
+        <ul>
+            <li><a href="https://ta-nishi.hatenablog.com/entry/2026/02/09/181044" target="_blank">マンガ家やミュージシャンが異常なほど若々しく見えるのは、『ゾーン』が原因なのではないか - 自意識高い系男子</a></li>
+            <li><a href="https://note.com/bright_wasp5197/n/na8014b3cc1db" target="_blank">【衆院選2026】自民圧勝の夜、東浩紀・ゲンロンカフェ『あの夜2』で「リベラルの自殺」を目撃した｜ぶにん。</a></li>
+            <li><a href="https://www.chunichi.co.jp/article/1206490" target="_blank">「金を下ろしてこい」男性の顔を殴り、3万円を脅し取った疑い　愛知県稲沢市議を逮捕：中日新聞Web</a></li>
+            <li><a href="https://note.com/nishiohirokazu/n/n58b6f250d298" target="_blank">「チームみらいは誰の声を聞いているのか——オードリー・タンとの分岐点」という記事の誤情報について｜NISHIO Hirokazu</a></li>
+            <li><a href="https://anond.hatelabo.jp/20260209214223" target="_blank">衆院選 1200万人以上が中道に投票、7議席（小選挙区）</a></li>
+            <li><a href="https://note.com/wakusei2nduno/n/n91c3f43f8a1b" target="_blank">「リベラル壊滅後」に僕たちがやるべきこととやってはいけないこと｜宇野常寛</a></li>
+            <li><a href="https://www.jcp.or.jp/web_policy/17280.html" target="_blank">総選挙の結果について ｜ 日本共産党</a></li>
+            <li><a href="https://www.nikkei.com/article/DGXZQOUA09A3N0Z00C26A2000000/" target="_blank">【衆議院選挙】「推し活」選挙が溶かした政党政治　「戦後民主主義」に引導渡す - 日本経済新聞</a></li>
+            <li><a href="https://www.4gamer.net/games/622/G062211/20260209042/" target="_blank">「アークナイツ：エンドフィールド」，サービス開始2週間で売上高が約271億円を突破。内訳からモバイル依存の打破が明らかに</a></li>
+            <li><a href="https://www.wwdjapan.com/articles/2319967" target="_blank">革靴が苦戦　「リーガル」が希望退職者を募集、製造子会社を清算へ - WWDJAPAN</a></li>
+            <li><a href="https://www.asahi.com/articles/ASV291QF4V29UTFK00QM.html" target="_blank">国論二分する政策「訴えたつもり」　公約実現に意欲　高市総裁が会見：朝日新聞</a></li>
+            <li><a href="https://zenn.dev/kawarimidoll/articles/b120d56a12b3f0" target="_blank">個人的定番macアプリ6選</a></li>
+            <li><a href="https://mangaspa.nikkan-spa.jp/episodes/d9d6618bfa57a" target="_blank">毎日、病んでます・第2話 | マンガSPA!</a></li>
+            <li><a href="https://note.com/seanky/n/n105e4166a784" target="_blank">「リベラルの若者」が自民党に投票する構造｜女子大生起業家</a></li>
+            <li><a href="https://news.ntv.co.jp/category/society/3e413eb5cd60451980505af2a9a3091d" target="_blank">【速報】羽賀研二容疑者を不同意わいせつ容疑で逮捕　沖縄県警（2026年2月10日掲載）｜日テレNEWS NNN</a></li>
+            <li><a href="https://av.watch.impress.co.jp/docs/series/rt/2084753.html" target="_blank">ブルーレイ・レコーダーはなぜ終売するのか。ディスクメディアの30年に見る必然【西田宗千佳のRandomTracking】</a></li>
+            <li><a href="https://anond.hatelabo.jp/20260209191143" target="_blank">中道が大敗した理由を心理学的に解説する</a></li>
+            <li><a href="http://www.all-nationz.com/archives/1084033863.html" target="_blank">外国人「日本のノベルゲーって登場人物は18歳以上と書けばいいと思ってるよね」 : 海外の万国反応記＠海外の反応</a></li>
+            <li><a href="https://sizu.me/ushironoko/posts/1t256hfucxc6" target="_blank">記事をAIに書かせるな｜ushironoko</a></li>
+            <li><a href="https://news.web.nhk/newsweb/na/na-k10015047881000" target="_blank">日本 NATOのウクライナ支援の枠組みに参加の方針固める | NHKニュース</a></li>
+            <li><a href="https://posfie.com/@Elif87995911/p/DNK7UCy" target="_blank">日本で「選挙」と呼ばれているものは、フィンランドから見たら選挙ではない。日本の惨状を悲しく思う</a></li>
+            <li><a href="https://posfie.com/@Elif87995911/p/hNJwErP" target="_blank">町山智浩さん「小選挙区制は自分が子どもの頃、自民党によって導入されました」※当時32歳</a></li>
+            <li><a href="https://posfie.com/@kalofollow/p/6M0gkmj" target="_blank">お相手の両親から戸籍謄本を見せてほしいと言われました😳ビックリしました、なんか私に疑わしいことがあると思ってるのでしょうか？🙃⇒婚活だと普通？</a></li>
+            <li><a href="https://posfie.com/@taimport/p/83WDJVU" target="_blank">もう、これから日本でまともな政権が樹立することはないだろうな。高市のやり方で勝てるなら、真面目に人間らしくやる意味がねぇんだし</a></li>
+            <li><a href="https://anond.hatelabo.jp/20260209214508" target="_blank">参政党とチームみらいに感じる不安の正体</a></li>
+            <li><a href="https://anond.hatelabo.jp/20260209153245" target="_blank">漫画とかのフィクションを読んでてそこに出てくるテンプレ悪党みたいな嫌..</a></li>
+            <li><a href="https://bunshun.jp/articles/-/86036" target="_blank">《衆院選》高市首相の“沈黙”に「朝日新聞はハレモノに触るような書きぶりを…」今回の選挙で目についたメディアの姿勢とは | 文春オンライン</a></li>
+            <li><a href="https://shonenjumpplus.com/episode/17107094914280978977" target="_blank">[第72話]限界OL霧切ギリ子 - ミートスパ土本 | 少年ジャンプ＋</a></li>
+            <li><a href="https://tech.hello.ai/entry/vercel-cloudflare-migration" target="_blank">Next.jsをVercelからCloudflareへ移行し、90%のコスト削減を実現した話 - Hello Tech</a></li>
+            <li><a href="https://mainichi.jp/articles/20260209/k00/00m/010/305000c" target="_blank">「異常」な量の無効票　大阪ダブル選は「信を得た」と言えるのか | 毎日新聞</a></li>
+            <li><a href="https://note.com/mostsouthguitar/n/n5e14caea5f35" target="_blank">日本型リベラルの死｜加藤文宏</a></li>
+            <li><a href="https://news.denfaminicogamer.jp/game-gene/260210w" target="_blank">「百合のラノベ」で勝負するって、ムリムリ!（※ムリじゃなかった!?）『わたなれ』原作者みかみてれんに聞く、苦境に立たされていた「百合ラノベ」と、それに抗うための大勝負とは【ゲーム世代の作家たち】</a></li>
+            <li><a href="https://togetter.com/li/2662066" target="_blank">オープニング研修で「職場において、機嫌を態度で表現する権利はありません。口調や動作でいっさい気分を表現しないように」ということを言ったら、良い人だけ残った話</a></li>
+            <li><a href="https://www.yomiuri.co.jp/election/shugiin/20260209-GYT1T00531/" target="_blank">泉健太氏や小川淳也氏が代表選出馬に意欲…１１８議席失った中道、１３日に野田・斉藤両氏の後任決定</a></li>
+            <li><a href="https://book.asahi.com/article/16337198" target="_blank">「天皇機関説タイフーン」書評　「小さい」人物が導いた戦争の道｜好書好日</a></li>
+            <li><a href="https://news.yahoo.co.jp/articles/a4020702f623650b28dedcd6881f55df165dbc55" target="_blank">投票呼びかけ動画が反響呼んだ歌手、衆院選の結果に「日本中が一つになった気がした」（日刊スポーツ） - Yahoo!ニュース</a></li>
+            <li><a href="https://gendai.media/articles/-/163432" target="_blank">大富豪レイ・ダリオの提言「中国への挑発は控えたほうがいい」</a></li>
+            <li><a href="https://zenn.dev/shio_shoppaize/articles/shogun-spec-first" target="_blank">Claude16台で10万行のCコンパイラを作った論文を読んで、「いや答えあるじゃん」と思った話</a></li>
 
-        // 2. 検索・フィルタリング
-        function filterNews() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            document.querySelectorAll('.card').forEach(card => {
-                const text = card.innerText.toLowerCase();
-                card.style.display = text.includes(q) ? 'block' : 'none';
-            });
-        }
+        </ul>
+    </div>
 
-        // 3. 既読管理
-        function markAsRead(id) {
-            let readList = JSON.parse(localStorage.getItem('read_news') || '[]');
-            if (!readList.includes(id)) readList.push(id);
-            localStorage.setItem('read_news', JSON.stringify(readList));
-            updateReadUI();
-        }
+    <div class="section">
+        <div class="section-header">ITmedia (好奇心・IT総合)</div>
+        <ul>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/10/news075.html" target="_blank">日本発のAI VTuber「しずく」開発元、米VC大手a16zから資金調達</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/10/news068.html" target="_blank">選挙特番で超高速ロボットカメラ活用　テレ朝「BOLT」採用理由は「戦後最短→いまだかつてないスピード→BOLT」</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/10/news065.html" target="_blank">Discord、全世界で年齢確認プロセス導入へ　セルフィー動画や身分証で成人証明</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/09/news126.html" target="_blank">チームみらい、「デジタル花付け」は13時間で開発　「ほんとはスマブラの参戦！みたいなアニメも作りたかった」</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/09/news075.html" target="_blank">「AIでSaaSは死ぬ」「SIerは終わる」は本当か？　バズる言説と、実務・監査が示す3つの現実</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/09/news114.html" target="_blank">カプセルトイ「手のひらネットワーク機器」第4弾が6月発売　レノボなど監修</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/09/news110.html" target="_blank">東京ポイント、新たに「PayPayポイント」「WAON POINT」に交換可能に　現在1.1万円分のポイント配布中</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/09/news112.html" target="_blank">「ガンダムファンクラブ」27年3月末でサービス終了へ　70作品以上の見放題など</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/09/news109.html" target="_blank">Xで漫画読みやすく　リプライツリーの画像、スワイプで次々見られるように</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/09/news097.html" target="_blank">ドコモ、衛星とスマホ直接通信サービスを2026年度初頭に開始へ　auに続き</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/09/news093.html" target="_blank">「2000ウォンずつ支給」のはずが「2000ビットコインずつ支給」　韓国2位の暗号資産取引所で送金ミス　総額7兆円相当</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/09/news082.html" target="_blank">東証全面高もKDDIは株価下落　子会社の架空取引で決算延期、約330億円が外部流出か</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/09/news081.html" target="_blank">「令和のシールブーム」でなぜ、「ボンド」まで品薄になるのか　そのワケは</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/09/news079.html" target="_blank">Herokuが事実上のメンテナンスモードに移行　新機能の導入より品質と運用の維持に重点</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/09/news070.html" target="_blank">ソニー、ブルーレイディスクレコーダー全機種の出荷終了へ　「後継機種はございません」</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/09/news038.html" target="_blank">数学でひもとく「ブラック保育園」　子どもを“意図的に病気にさせる”と利益が最大化？　その条件とは</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/08/news021.html" target="_blank">等身大のAIドール「Emily」――長期記憶で会話を覚えて関係性を深める　“おもちゃ”とBluetoothで接続</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/08/news012.html" target="_blank">SNSで画像共有できない……任天堂「トモダチコレクション」新作の機能制限にマンガ家が気付いた“もう一つの効果”</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/07/news013.html" target="_blank">AI画像はどっちだ？　AIマニアvs.カメラマニア、本気で見破り合い</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/07/news023.html" target="_blank">キヤノン「PowerShot」30周年なので歴代モデルを振り返る　時折、現れる斬新でユニークな機種とは？</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news126.html" target="_blank">ネット通販「TikTok Shop」にクリエイター20万人　成果報酬型で成長狙う</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news124.html" target="_blank">ビッグローブらKDDI子会社で架空取引　売り上げ2460億円を過大計上か　3Q決算は3月末に延期</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news119.html" target="_blank">SBI証券の金・銀・プラチナ取引サイトがスマホ対応　「ニーズの高まり踏まえ」</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news118.html" target="_blank">東宝、フジHDの筆頭株主に　フジの自社株買いで</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news116.html" target="_blank">ニセ代表取締役「5000万円送金して」──上場企業の子会社が詐欺被害　虚偽のメールに社員がだまされる</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news113.html" target="_blank">一部ポータブル電源に発火の恐れ、Ecoflowがファームウェアアップデート呼び掛け</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news104.html" target="_blank">Netflix参戦で本格化するプロの「縦動画シフト」　4:3→16:9より大きく変化する制作現場</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news100.html" target="_blank">「指紋認証機能付きクレカ」商用化へ実証実験　既存端末との相性など検証　JCBとDNP</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news092.html" target="_blank">「ダイヤモンド半導体」でホンダと産総研が連携研究室を設立</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news076.html" target="_blank">不動産情報の「アットホーム」に不正アクセス、利用者の個人情報など一部漏えいか</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news071.html" target="_blank">「東京ポイント」アクセス集中、交換しづらい状態続く「時間あけて試して」</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news068.html" target="_blank">娘への贈り物ブーツにGPS……ベテラン警察官が向き合うストーカー・DV加害者の「孤独」</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news066.html" target="_blank">宮崎駿が「生命への侮辱」と批判してから10年　「ANLIFE」2月12日公開、生物の進化を操るシミュレータ</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news065.html" target="_blank">Amazon決算、AWS成長率24％に加速　AIインフラ投資で2026年は2000億ドルの設備投資を計画</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news033.html" target="_blank">テキストエディタ「Notepad++」のアップデートツールが乗っ取り被害　バックドアの配信に悪用　中国APT集団が関与か</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/06/news026.html" target="_blank">哺乳類の狩りの仕組みは？　脳にレーザー照射で“攻撃的になる部位”特定　中国チームが18年にマウス実験</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/05/news134.html" target="_blank">DRAM高騰で家庭用ゲーム機も値上がりする？　任天堂とソニーが話したこと</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/05/news129.html" target="_blank">高級魚「ノドグロ」の完全養殖に成功　近畿大が発表　世界初の成果</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/05/news122.html" target="_blank">ソニー、テレビ事業の切り離しは「事業ポートフォリオ最適化の一環」</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/05/news111.html" target="_blank">スクエニ、株主優待を導入　“ドラクエ40周年記念の純銀製メダル”を抽選で贈呈</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/04/news050.html" target="_blank">「×」ボタンをタップしても消えない――「UI偽装広告」が壊すデジタル社会の常識</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/05/news095.html" target="_blank">みずほ証券、口座開設システム刷新　楽天証券と共同開発</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/05/news091.html" target="_blank">「Uber Eats」有料会員は「商品代金だけで頼める」　「サービス料」も0円に</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/05/news089.html" target="_blank">不動産登記証明書オンライン請求、「三丁目」含むと「却下」のエラー　1日で解消</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/05/news088.html" target="_blank">パナソニックHD、早期退職1万2000人見通し　業績を下方修正　退職金など関連費膨らむ</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/05/news072.html" target="_blank">「これ、申し込めてるの？」　1.1万円の「東京ポイント」獲得は、ちょっと不安だった</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/05/news078.html" target="_blank">Luup、都内のポート拡充　23区全てに配備</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/05/news069.html" target="_blank">Alphabet、年間売上高4000億ドルの大台突破　「AIが検索の可能性を広げる」とピチャイCEO</a></li>
+            <li><a href="https://www.itmedia.co.jp/news/articles/2602/05/news066.html" target="_blank">さくらのクラウド、ガバメントクラウド適合期限近づく　残る条件は統制やセキュリティ認証、オブジェクトストレージの一部に</a></li>
 
-        function updateReadUI() {
-            const readList = JSON.parse(localStorage.getItem('read_news') || '[]');
-            document.querySelectorAll('.card').forEach(card => {
-                if (readList.includes(card.dataset.id)) card.classList.add('read');
-            });
-        }
+        </ul>
+    </div>
 
-        function clearRead() {
-            if(confirm('既読をリセットしますか？')) {
-                localStorage.removeItem('read_news');
-                location.reload();
-            }
-        }
-
-        // 初期化
-        document.addEventListener('DOMContentLoaded', updateReadUI);
-    </script>
 </body>
 </html>
