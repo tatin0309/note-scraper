@@ -23,8 +23,12 @@ FEED_CONFIGS = [
         "url": "https://www.nhk.or.jp/rss/news/cat0.xml"
     },
     {
-        "name": "NHK科学・文化 (創作のネタ)",
-        "url": "https://www.nhk.or.jp/rss/news/cat7.xml"
+        "name": "NHK科学・医療 (創作のネタ)",
+        "url": "https://www.nhk.or.jp/rss/news/cat3.xml"
+    },
+    {
+        "name": "NHK文化・エンタメ (創作のネタ)",
+        "url": "https://www.nhk.or.jp/rss/news/cat2.xml"
     },
     {
         "name": "はてなブックマーク (世論・ホットエントリ)",
@@ -41,7 +45,7 @@ EXCLUDE_KEYWORDS = ["生成AI", "Generative AI", "ChatGPT", "LLM", "Gemini", "AI
 HIGHLIGHT_KEYWORDS = ["岩手", "一関"]
 
 # 出力ファイル名
-OUTPUT_FILENAME = "news_report.txt"
+OUTPUT_FILENAME = "index.html"
 
 # ==========================================
 # 2. クラス定義
@@ -110,54 +114,81 @@ class NewsFormatter:
     """ニュースデータの出力形式を整形するクラス"""
     
     @staticmethod
-    def format_text(all_news):
-        """テキスト形式のレポートを作成"""
+    def generate_html(all_news):
+        """HTML形式のレポートを作成"""
         now_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        lines = []
-        lines.append("==================================================")
-        lines.append(f"              Daily News Report                   ")
-        lines.append(f"          {now_str}                       ")
-        lines.append("==================================================")
-        lines.append("")
+        
+        html = f"""
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily News Report</title>
+    <style>
+        body {{ font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; color: #333; }}
+        h1 {{ border-bottom: 2px solid #333; padding-bottom: 10px; }}
+        .timestamp {{ color: #666; font-size: 0.9em; margin-bottom: 30px; }}
+        .section {{ margin-bottom: 40px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }}
+        .section-header {{ background: #f4f4f4; padding: 10px 15px; font-weight: bold; font-size: 1.2em; border-bottom: 1px solid #ddd; }}
+        ul {{ list-style-type: none; padding: 0; margin: 0; }}
+        li {{ border-bottom: 1px solid #eee; }}
+        li:last-child {{ border-bottom: none; }}
+        a {{ display: block; padding: 12px 15px; text-decoration: none; color: #0066cc; transition: background 0.2s; }}
+        a:hover {{ background: #f9f9f9; text-decoration: underline; }}
+        .highlight {{ color: #e60000; font-weight: bold; }}
+    </style>
+</head>
+<body>
+    <h1>Daily News Report</h1>
+    <p class="timestamp">更新日時: {now_str}</p>
+"""
         
         for site_name, articles in all_news.items():
-            lines.append("--------------------------------------------------")
-            lines.append(f"【{site_name}】")
-            lines.append("--------------------------------------------------")
-            
+            html += f"""
+    <div class="section">
+        <div class="section-header">{site_name}</div>
+        <ul>
+"""
             if not articles:
-                lines.append("  (記事なし、またはエラー)")
+                 html += '            <li style="padding: 15px; color: #999;">(記事なし、または取得エラー)</li>'
             
             for article in articles:
-                lines.append(f"・{article['title']}")
-                lines.append(f"  {article['url']}")
-            
-            lines.append("") # 空行
-            
-        return "\n".join(lines)
+                title_html = article['title'].replace("【地元】", '<span class="highlight">【地元】</span>')
+                html += f'            <li><a href="{article["url"]}" target="_blank">{title_html}</a></li>\n'
+                
+            html += """
+        </ul>
+    </div>
+"""
+
+        html += """
+</body>
+</html>
+"""
+        return html
 
 # ==========================================
 # 3. メイン処理
 # ==========================================
 
 def job():
-    print(f"\n⏰ 定時実行を開始します: {datetime.datetime.now()}")
+    print(f"\n⏰ 実行を開始します: {datetime.datetime.now()}")
     
     fetcher = NewsFetcher()
     all_news = fetcher.fetch_all()
     
     formatter = NewsFormatter()
-    report_text = formatter.format_text(all_news)
+    html_content = formatter.generate_html(all_news)
     
-    # コンソール出力
-    print("\n" + report_text)
+    # コンソールには簡易表示（オプション）
+    print(f"HTML生成完了。サイズ: {len(html_content)} bytes")
     
-    # ファイル出力 (追記モードではなく上書きモードで最新の状態を保持)
-    # 必要であればファイル名に日時を含めることも可能
+    # ファイル出力
     try:
         with open(OUTPUT_FILENAME, "w", encoding="utf-8") as f:
-            f.write(report_text)
-        print(f"\n✅ レポートを保存しました: {os.path.abspath(OUTPUT_FILENAME)}")
+            f.write(html_content)
+        print(f"\n✅ HTMLレポートを保存しました: {os.path.abspath(OUTPUT_FILENAME)}")
     except Exception as e:
         print(f"\n❌ ファイル保存エラー: {e}")
 
