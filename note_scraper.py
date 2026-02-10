@@ -31,8 +31,8 @@ FEED_CONFIGS = [
         "url": "https://www.nhk.or.jp/rss/news/cat2.xml"
     },
     {
-        "name": "はてなブックマーク (世論・ホットエントリ)",
-        "url": "https://b.hatena.ne.jp/hotentry.rss"
+        "name": "【WIRED】(未来・カルチャー)",
+        "url": "https://wired.jp/feed/rss"
     },
     {
         "name": "ITmedia (好奇心・IT総合)",
