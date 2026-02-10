@@ -2,9 +2,15 @@ import feedparser
 import re
 import os
 import sys
-import schedule
 import time
 import datetime
+import socket
+
+# ==========================================
+# 0. タイムアウト設定
+# ==========================================
+# GitHub Actions等でのフリーズ防止のため、30秒でタイムアウト
+socket.setdefaulttimeout(30)
 
 # ==========================================
 # 1. 設定
@@ -156,18 +162,4 @@ def job():
         print(f"\n❌ ファイル保存エラー: {e}")
 
 if __name__ == "__main__":
-    # スケジュール設定
-    schedule.every().day.at("06:00").do(job)
-    schedule.every().day.at("12:00").do(job)
-    schedule.every().day.at("18:00").do(job)
-
-    print("🚀 ニュース収集スケジューラーを起動しました。")
-    print("   毎日 06:00, 12:00, 18:00 に実行されます。")
-    print("   終了するには Ctrl+C を押してください。")
-    
-    # 初回実行（動作確認用としてコメントアウトを外してもよい）
-    # job()
-
-    while True:
-        schedule.run_pending()
-        time.sleep(60)
+    job()
