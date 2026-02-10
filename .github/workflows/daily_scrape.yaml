@@ -4,6 +4,9 @@ on:
   schedule:
     # 日本時間 朝6:00 (UTC 21:00), 昼12:00 (UTC 03:00), 夕方18:00 (UTC 09:00)
     - cron: "0 21,3,9 * * *"
+  push:
+    branches:
+      - main
   workflow_dispatch: # 手動で実行ボタンも出せるようにする
 
 jobs:
